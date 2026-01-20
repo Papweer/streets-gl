@@ -43,7 +43,7 @@ const MainScreen: React.FC = () => {
 		}
 
 		window.addEventListener('keydown', handler);
-		return () => {
+		return (): void => {
 			window.removeEventListener('keydown', handler)
 		};
 	}, [isUIVisible]);

@@ -44,7 +44,7 @@ test.each([...new Array(5)].map((_, i) => i + 1))(
 			pool.update();
 		}
 
-		expect(physicalResource.delete).toBeCalledTimes(1);
+		expect(physicalResource.delete).toHaveBeenCalledTimes(1);
 		expect(pool.getPhysicalResource(id)).toBeFalsy();
 	}
 );
@@ -63,7 +63,7 @@ test.each([...new Array(5)].map((_, i) => i))(
 			pool.update();
 		}
 
-		expect(physicalResource.delete).toBeCalledTimes(0);
+		expect(physicalResource.delete).toHaveBeenCalledTimes(0);
 		expect(pool.getPhysicalResource(id)).toBe(physicalResource);
 	}
 );

@@ -1,4 +1,5 @@
-@import "../../styles/common.scss";
+@use "../../styles/common.scss";
+@use "../../styles/themes";
 
 .category {
 	margin: 0 0 16px 0;
@@ -19,10 +20,10 @@
 	}
 }
 
-@include themify($themes) {
+@include themes.themify(themes.$themes) {
 	.category {
 		&__title {
-			color: themed('text-color-subtle');
+			color: themes.themed('text-color-subtle');
 		}
 	}
 }

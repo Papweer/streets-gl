@@ -13,7 +13,7 @@ import {getCollectionFromVectorFeatures} from "~/lib/tile-processing/vector/util
 import Utils from "~/app/Utils";
 import Config from "~/app/Config";
 
-const proto = require('./pbf/vector_tile.js').Tile;
+import { Tile as proto } from './pbf/vector_tile.js';
 
 const PBFTagTypesMap: TagTypesMap = {
 	"@ombb00": TagTypes.Double,

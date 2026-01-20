@@ -41,7 +41,7 @@ test(`should prioritize attaching a physical resource from pool`, () => {
 	const resource = new DummyResource({descriptor, builder});
 	resource.attachPhysicalResource(pool);
 
-	expect(pool.getPhysicalResource).toBeCalledTimes(1);
+	expect(pool.getPhysicalResource).toHaveBeenCalledTimes(1);
 	expect(resource.attachedPhysicalResource).toBe(physicalResource);
 });
 
@@ -58,7 +58,7 @@ test(`should fall back to attaching new physical resource if pool in empty`, () 
 	const resource = new DummyResource({descriptor, builder});
 	resource.attachPhysicalResource(pool);
 
-	expect(builder.createFromResourceDescriptor).toBeCalledTimes(1);
+	expect(builder.createFromResourceDescriptor).toHaveBeenCalledTimes(1);
 	expect(resource.attachedPhysicalResource).toBe(physicalResource);
 });
 

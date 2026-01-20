@@ -7,8 +7,7 @@ import PBFGeometryParser, {PBFPolygon, PBFRing} from "~/lib/tile-processing/vect
 import {Tile as proto} from "~/lib/tile-processing/vector/providers/pbf/vector_tile";
 import Utils from "~/app/Utils";
 import Config from "~/app/Config";
-
-const Pbf = require('pbf');
+import Pbf from 'pbf';
 
 export default class WaterTileSource extends TileSource<Float32Array> {
 	private mask: WaterMask = null;

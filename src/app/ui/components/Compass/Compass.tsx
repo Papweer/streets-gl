@@ -12,7 +12,7 @@ const Compass: React.FC<{
 	return <div
 		className={styles.compass}
 		onClick={(): void => {
-			onReset && onReset();
+			onReset?.();
 		}}
 		style={{
 			transform: directionToTransformStyle(direction)

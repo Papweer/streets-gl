@@ -22,7 +22,7 @@ const Root: React.FC = () => {
 
 		match.addEventListener('change', themeListener);
 
-		return () => {
+		return (): void => {
 			match.removeEventListener('change', themeListener);
 		}
 	}, []);

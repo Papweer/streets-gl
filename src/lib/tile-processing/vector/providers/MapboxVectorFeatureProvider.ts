@@ -8,7 +8,7 @@ import VectorNode from "~/lib/tile-processing/vector/features/VectorNode";
 import {VectorAreaDescriptor} from "~/lib/tile-processing/vector/qualifiers/descriptors";
 import Utils from "~/app/Utils";
 
-const proto = require('./pbf/vector_tile.js').Tile;
+import { Tile as proto } from './pbf/vector_tile.js';
 
 export default class MapboxVectorFeatureProvider implements FeatureProvider<VectorFeatureCollection> {
 	private readonly endpointTemplate: string;

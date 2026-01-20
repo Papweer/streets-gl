@@ -171,8 +171,8 @@ test(`should attach physical resources to resources`, () => {
 	graph.addPass(pass);
 	graph.render();
 
-	expect(resource.attachPhysicalResource).toBeCalledTimes(1);
-	expect(resource.attachPhysicalResource).toBeCalledWith(pool);
+	expect(resource.attachPhysicalResource).toHaveBeenCalledTimes(1);
+	expect(resource.attachPhysicalResource).toHaveBeenCalledWith(pool);
 });
 
 test(`should not attach physical resources to resources if they are already attached`, () => {
@@ -198,7 +198,7 @@ test(`should not attach physical resources to resources if they are already atta
 	graph.addPass(pass);
 	graph.render();
 
-	expect(resource.attachPhysicalResource).toBeCalledTimes(0);
+	expect(resource.attachPhysicalResource).toHaveBeenCalledTimes(0);
 });
 
 test(`should call render on used passes`, () => {
@@ -222,7 +222,7 @@ test(`should call render on used passes`, () => {
 	graph.addPass(pass);
 	graph.render();
 
-	expect(pass.render).toBeCalledTimes(1);
+	expect(pass.render).toHaveBeenCalledTimes(1);
 });
 
 test.each([true, false])(
@@ -248,7 +248,7 @@ test.each([true, false])(
 		graph.addPass(pass);
 		graph.render();
 
-		expect(resource.resetAttachedPhysicalResource).toBeCalledTimes(isTransient ? 1 : 0);
+		expect(resource.resetAttachedPhysicalResource).toHaveBeenCalledTimes(isTransient ? 1 : 0);
 	}
 );
 
@@ -274,7 +274,7 @@ test(`should update pool during render`, () => {
 	graph.addPass(pass);
 	graph.render();
 
-	expect(pool.update).toBeCalledTimes(1);
+	expect(pool.update).toHaveBeenCalledTimes(1);
 });
 
 test.each(testGraphs.filter(data => !data.hasLoop))(
@@ -320,9 +320,9 @@ test.each(testGraphs)(
 		}
 
 		if (hasLoop) {
-			expect(() => graph.render()).toThrowError();
+			expect(() => graph.render()).toThrow();
 		} else {
-			expect(() => graph.render()).not.toThrowError();
+			expect(() => graph.render()).not.toThrow();
 		}
 	}
 );
