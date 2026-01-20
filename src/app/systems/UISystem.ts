@@ -39,6 +39,9 @@ export default class UISystem extends System {
 	private fpsUpdateTimer = 0;
 
 	public postInit(): void {
+
+		this.state.settingsSchema = this.systemManager.getSystem(SettingsSystem).schema;
+
 		this.ui = new UI(this.state);
 		this.updateDOM();
 
@@ -68,8 +71,6 @@ export default class UISystem extends System {
 				this.ui.setStateFieldValue('dataTimestamp', timestamp);
 			});
 		});
-
-		this.state.settingsSchema = this.systemManager.getSystem(SettingsSystem).schema;
 
 		this.detectMobile();
 	}

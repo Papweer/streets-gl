@@ -1,7 +1,7 @@
 import React, {useContext, useMemo, useRef} from "react";
 import ModalPanel from "~/app/ui/components/ModalPanel";
 import styles from './SettingsModalPanel.scss';
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import {ActionsContext, AtomsContext} from "~/app/ui/UI";
 import ModalCategory from "~/app/ui/components/ModalPanel/ModalCategory";
 import ModalCategoryContainer from "~/app/ui/components/ModalPanel/ModalCategoryContainer";
@@ -15,8 +15,8 @@ const SettingsModalPanel: React.FC<{
 }> = ({onClose}) => {
 	const atoms = useContext(AtomsContext);
 	const actions = useContext(ActionsContext);
-	const schema = useRecoilValue(atoms.settingsSchema);
-	const endpoints = useRecoilValue(atoms.overpassEndpoints);
+	const schema = useAtomValue(atoms.settingsSchema);
+	const endpoints = useAtomValue(atoms.overpassEndpoints);
 	const setEndpoints = actions.setOverpassEndpoints;
 	const endpointsRef = useRef(null);
 

@@ -3,7 +3,7 @@ import React, {useContext, useState} from "react";
 import {AiOutlineSave} from "react-icons/ai";
 import {FiEdit2} from "react-icons/fi";
 import {ActionsContext, AtomsContext} from "~/app/ui/UI";
-import {useRecoilState, useRecoilValue} from "recoil";
+import {useAtom, useAtomValue} from "jotai";
 import styles from './TimeControls.scss';
 import timeButtonStyles from './TimeButton.scss';
 import CenteredIcon from "~/app/ui/components/TimePanel/CenteredIcon";
@@ -36,8 +36,8 @@ const TimeControls: React.FC = () => {
 
 	const setTime = actions.setTime;
 
-	const [timeMultiplier, setTimeMultiplier] = useRecoilState(atoms.mapTimeMultiplier);
-	const time = useRecoilValue(atoms.mapTime);
+	const [timeMultiplier, setTimeMultiplier] = useAtom(atoms.mapTimeMultiplier);
+	const time = useAtomValue(atoms.mapTime);
 	const [timeEditEnabled, setTimeEditEnabled] = useState<boolean>(false);
 	const [timeEditDate, setTimeEditDate] = useState<string>('');
 	const [timeEditTime, setTimeEditTime] = useState<string>('');

@@ -1,15 +1,15 @@
 import React, {useContext} from "react";
 import styles from "./Setting.scss";
 import {AtomsContext} from "~/app/ui/UI";
-import {useRecoilState, useRecoilValue} from "recoil";
+import {useAtom, useAtomValue} from "jotai";
 import Setting from "./Setting";
 
 const SettingSelect: React.FC<{
 	id: string;
 }> = ({id}) => {
 	const atoms = useContext(AtomsContext);
-	const [settingValue, setSettingValue] = useRecoilState(atoms.settingsObject(id));
-	const schema = useRecoilValue(atoms.settingsSchema)[id];
+	const [settingValue, setSettingValue] = useAtom(atoms.settingsObject(id));
+	const schema = useAtomValue(atoms.settingsSchema)[id];
 	const selected = settingValue.statusValue;
 
 	return <Setting name={schema.label} isSub={!!schema.parent}>

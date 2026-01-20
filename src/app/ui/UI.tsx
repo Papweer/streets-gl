@@ -1,7 +1,7 @@
 import Root from "./Root";
 import React from "react";
 import { createRoot } from 'react-dom/client';
-import {RecoilRoot} from "recoil";
+import { Provider } from 'jotai';
 import {AtomsCollection} from "~/app/ui/state/atoms";
 import {StateStorage} from "~/app/ui/state/utils";
 import UISystemState from "~/app/ui/UISystemState";
@@ -33,9 +33,9 @@ export default class UI implements StateStorage {
 			<React.StrictMode>
 				<AtomsContext.Provider value={atoms}>
 					<ActionsContext.Provider value={actions}>
-						<RecoilRoot>
+						<Provider>
 							<Root/>
-						</RecoilRoot>
+						</Provider>
 					</ActionsContext.Provider>
 				</AtomsContext.Provider>
 			</React.StrictMode>

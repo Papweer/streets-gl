@@ -1,5 +1,5 @@
 import React, {useContext} from "react";
-import {useRecoilState} from "recoil";
+import {useAtom} from "jotai";
 import {AtomsContext} from "~/app/ui/UI";
 import styles from './TimePanel.scss';
 import timeButtonStyles from './TimeButton.scss';
@@ -9,7 +9,7 @@ const presets = ['Dynamic', 'Morning', 'Noon', 'Evening'];
 
 const TimePanel: React.FC = () => {
 	const atoms = useContext(AtomsContext);
-	const [timeMode, setTimeMode] = useRecoilState(atoms.mapTimeMode);
+	const [timeMode, setTimeMode] = useAtom(atoms.mapTimeMode);
 
 	return (
 		<div className={styles.timePanel}>

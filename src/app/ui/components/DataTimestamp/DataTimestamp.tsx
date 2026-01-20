@@ -1,11 +1,11 @@
 import React, {useContext} from "react";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import styles from './DataTimestamp.scss';
 import {AtomsContext} from "~/app/ui/UI";
 
 const DataTimestamp: React.FC = () => {
 	const atoms = useContext(AtomsContext);
-	const date = useRecoilValue(atoms.dataTimestamp);
+	const date = useAtomValue(atoms.dataTimestamp);
 
 	return (
 		<div className={styles.timestamp}>

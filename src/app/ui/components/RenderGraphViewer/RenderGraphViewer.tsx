@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useRef, useState} from "react";
 import dagre from "dagre";
 import dagreD3 from "dagre-d3";
 import * as d3 from "d3";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import styles from './RenderGraphViewer.scss';
 import {AtomsContext} from "~/app/ui/UI";
 import stringifyRecord from "~/app/ui/components/RenderGraphViewer/stringifyRecord";
@@ -55,7 +55,7 @@ const RenderGraphViewer: React.FC<{
 	close: () => void;
 }> = ({update, close}) => {
 	const atoms = useContext(AtomsContext);
-	const data = useRecoilValue(atoms.renderGraph);
+	const data = useAtomValue(atoms.renderGraph);
 	const [isZoomHandlerSet, setIsZoomHandlerSet] = useState<boolean>(null);
 	const svgRef = useRef();
 

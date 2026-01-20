@@ -1,14 +1,14 @@
 import React, {useContext, useState} from "react";
 import classes from './LoadingScreen.scss';
 import {AtomsContext} from "~/app/ui/UI";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 
 const IssuesURL = 'https://github.com/StrandedKitty/streets-gl/issues';
 
 const LoadingScreen: React.FC = () => {
 	const atoms = useContext(AtomsContext);
-	const loadingProgress = useRecoilValue(atoms.resourcesLoadingProgress);
-	const loadingPath = useRecoilValue(atoms.resourceInProgressPath);
+	const loadingProgress = useAtomValue(atoms.resourcesLoadingProgress);
+	const loadingPath = useAtomValue(atoms.resourceInProgressPath);
 	const [showSelf, setShowSelf] = useState<boolean>(true);
 
 	if (!showSelf) {

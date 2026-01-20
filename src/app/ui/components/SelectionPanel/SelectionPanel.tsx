@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useEffect, useState} from "react";
-import {useRecoilState} from "recoil";
+import {useAtom} from "jotai";
 import styles from "./SelectionPanel.scss";
 import Panel from "~/app/ui/components/Panel";
 import {AtomsContext} from "~/app/ui/UI";
@@ -53,7 +53,7 @@ const getTags = (tags: Record<string, string>): JSX.Element => {
 
 const SelectionPanel: React.FC = () => {
 	const atoms = useContext(AtomsContext);
-	const [activeFeature, setActiveFeature] = useRecoilState(atoms.activeFeature);
+	const [activeFeature, setActiveFeature] = useAtom(atoms.activeFeature);
 	const [description, setDescription] = useState<FeatureDescription>(null);
 
 	const closeCallback = useCallback(() => {

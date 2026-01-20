@@ -1,6 +1,6 @@
 import React, {useCallback, useContext, useEffect, useState} from "react";
 import LegalAttributionPanel from "~/app/ui/components/LegalAttributionPanel";
-import {useRecoilValue} from "recoil";
+import {useAtomValue} from "jotai";
 import DebugInfo from "~/app/ui/components/DebugInfo";
 import CompassPanel from "~/app/ui/components/CompassPanel";
 import SelectionPanel from "~/app/ui/components/SelectionPanel";
@@ -21,7 +21,7 @@ const MainScreen: React.FC = () => {
 	const actions = useContext(ActionsContext);
 
 	const [isRenderGraphVisible, setIsRenderGraphVisible] = useState<boolean>(false);
-	const loadingProgress = useRecoilValue(atoms.resourcesLoadingProgress);
+	const loadingProgress = useAtomValue(atoms.resourcesLoadingProgress);
 	const [activeModalWindow, setActiveModalWindow] = useState<string>('');
 	const [isUIVisible, setIsUIVisible] = useState<boolean>(true);
 
