@@ -3,7 +3,7 @@ import Road from "~/lib/road-graph/Road";
 import Intersection from "~/lib/road-graph/Intersection";
 import LinkedVertex from "~/lib/road-graph/LinkedVertex";
 import SegmentGroup from "~/lib/road-graph/SegmentGroup";
-import RBush from 'rbush';
+import RBush from 'rbush-rs';
 
 interface Group {
 	roads: Road[];
