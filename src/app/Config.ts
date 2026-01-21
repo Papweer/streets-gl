@@ -134,9 +134,9 @@ const Config = {
 			category: 'graphics'
 		}
 	} as SettingsSchema,
-	TileServerEndpoint: 'https://tiles.streets.gl',
+	TileServerEndpoint: process.env.TILE_SERVER_ENDPOINT,
 	SlippyEndpointTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-	TilesEndpointTemplate: 'https://tiles.streets.gl/vector/{z}/{x}/{y}'
+	TilesEndpointTemplate: process.env.TILES_ENDPOINT_TEMPLATE
 };
 
 export default Config;
