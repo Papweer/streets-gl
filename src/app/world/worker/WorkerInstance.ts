@@ -34,7 +34,6 @@ class WorkerInstance {
 				this.fetchTile(
 					x,
 					y,
-					data.overpassEndpoint,
 					data.tileServerEndpoint,
 					data.vectorTilesEndpointTemplate,
 				);
@@ -45,12 +44,10 @@ class WorkerInstance {
 	private fetchTile(
 		x: number,
 		y: number,
-		overpassEndpoint: string,
 		tileServerEndpoint: string,
 		vectorTilesEndpointTemplate: string,
 	): void {
 		const provider = new Tile3DFromVectorProvider({
-			overpassEndpoint,
 			tileServerEndpoint,
 			vectorTilesEndpointTemplate,
 			heightPromise: (positions: Float64Array): Promise<Float64Array> => this.getTerrainHeight(x, y, positions)

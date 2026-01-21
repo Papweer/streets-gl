@@ -16,9 +16,6 @@ const SettingsModalPanel: React.FC<{
 	const atoms = useContext(AtomsContext);
 	const actions = useContext(ActionsContext);
 	const schema = useAtomValue(atoms.settingsSchema);
-	const endpoints = useAtomValue(atoms.overpassEndpoints);
-	const setEndpoints = actions.setOverpassEndpoints;
-	const endpointsRef = useRef(null);
 
 	const categorizedGroups = useMemo(() => {
 		const categories: Record<string, SettingsGroupStructure[]> = {};
@@ -73,29 +70,6 @@ const SettingsModalPanel: React.FC<{
 					]}
 				/>
 			</ModalCategoryContainer>
-			{/*<ModalCategoryContainer>
-				<ModalCategory label={'Overpass endpoints'}>
-					<Endpoints
-						ref={endpointsRef}
-						endpoints={endpoints}
-						setEndpoints={setEndpoints}
-					/>
-				</ModalCategory>
-				<ModalButtonRow
-					labels={['Add endpoint', 'Reset to defaults']}
-					icons={[
-						<AiOutlinePlus size={16} />,
-						<AiOutlineUndo size={16} />
-					]}
-					onClicks={[
-						(): void => endpointsRef.current.createNewEndpoint(),
-						(): void => {
-							endpointsRef.current.stopEditing();
-							actions.resetOverpassEndpoints();
-						}
-					]}
-				/>
-			</ModalCategoryContainer>*/}
 		</div>
 	</ModalPanel>;
 }

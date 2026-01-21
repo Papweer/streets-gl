@@ -1,7 +1,6 @@
 import { atomWithBidirectionalSync, StateStorage, SyncedAtom, createAtomFamily } from "~/app/ui/state/utils";
 import { SettingsObjectEntry } from "~/app/settings/SettingsObject";
 import { SettingsSchema } from "~/app/settings/SettingsSchema";
-import { OverpassEndpoint } from "~/app/systems/TileLoadingSystem";
 import RenderGraphSnapshot from "~/app/ui/RenderGraphSnapshot";
 
 export interface AtomsCollection {
@@ -17,7 +16,6 @@ export interface AtomsCollection {
 	northDirection: SyncedAtom<number>;
 	settingsObject: (param: string) => SyncedAtom<SettingsObjectEntry>;
 	settingsSchema: SyncedAtom<SettingsSchema>;
-	overpassEndpoints: SyncedAtom<OverpassEndpoint[]>;
 	dataTimestamp: SyncedAtom<Date | null>;
 }
 
@@ -38,7 +36,6 @@ export const getAtoms = (
 		northDirection: atomWithBidirectionalSync('northDirection', commonStorage),
 		settingsObject: createAtomFamily<SettingsObjectEntry>(settingsStorage),
 		settingsSchema: atomWithBidirectionalSync('settingsSchema', commonStorage),
-		overpassEndpoints: atomWithBidirectionalSync('overpassEndpoints', commonStorage),
 		dataTimestamp: atomWithBidirectionalSync('dataTimestamp', commonStorage),
 	};
 };

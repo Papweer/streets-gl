@@ -28,7 +28,6 @@ const Config = {
 	MaxTexturedRoofAABBArea: 2e6,
 	BuildingSmoothNormalsThreshold: 30,
 	LightTransitionDuration: 1,
-	OverpassRequestTimeout: 30000,
 	CameraFOVZoomFactor: 2,
 	CSMShadowCameraNear: 1,
 	CSMShadowCameraFar: 20000,
@@ -135,11 +134,6 @@ const Config = {
 			category: 'graphics'
 		}
 	} as SettingsSchema,
-	OverpassEndpoints: [
-		{url: 'https://overpass-api.de/api/interpreter', isEnabled: true},
-		{url: 'https://overpass.openstreetmap.ru/cgi/interpreter', isEnabled: false},
-		{url: 'https://overpass.kumi.systems/api/interpreter', isEnabled: false}
-	],
 	TileServerEndpoint: 'https://tiles.streets.gl',
 	SlippyEndpointTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
 	TilesEndpointTemplate: 'https://tiles.streets.gl/vector/{z}/{x}/{y}'

@@ -1,5 +1,4 @@
 import {SettingsSchema} from "~/app/settings/SettingsSchema";
-import {OverpassEndpoint} from "~/app/systems/TileLoadingSystem";
 import RenderGraphSnapshot from "~/app/ui/RenderGraphSnapshot";
 
 export default interface UISystemState {
@@ -16,6 +15,5 @@ export default interface UISystemState {
 	resourceInProgressPath: string;
 	northDirection: number;
 	settingsSchema: SettingsSchema;
-	overpassEndpoints: OverpassEndpoint[];
 	dataTimestamp: Date;
 }

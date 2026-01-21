@@ -10,7 +10,7 @@ import PickingSystem from "~/app/systems/PickingSystem";
 import SettingsSystem from "~/app/systems/SettingsSystem";
 import SettingsStorageDecorator from "~/app/settings/SettingsStorageDecorator";
 import Utils from "~/app/Utils";
-import TileLoadingSystem, {OverpassEndpoint} from "~/app/systems/TileLoadingSystem";
+import TileLoadingSystem from "~/app/systems/TileLoadingSystem";
 import UISystemState from "~/app/ui/UISystemState";
 import RenderGraphSnapshot from "~/app/ui/RenderGraphSnapshot";
 import UIActions from "~/app/ui/UIActions";
@@ -33,7 +33,6 @@ export default class UISystem extends System {
 		resourceInProgressPath: '',
 		northDirection: 0,
 		settingsSchema: {},
-		overpassEndpoints: [],
 		dataTimestamp: null
 	};
 	private fpsUpdateTimer = 0;
@@ -61,12 +60,6 @@ export default class UISystem extends System {
 		});
 
 		this.systemManager.onSystemReady(TileLoadingSystem, system => {
-			this.ui.addStateFieldListener('overpassEndpoints', value => {
-				if (value.length > 0) {
-					system.setOverpassEndpoints(value);
-				}
-			});
-
 			system.fetchTilesTimestamp().then(timestamp => {
 				this.ui.setStateFieldValue('dataTimestamp', timestamp);
 			});
@@ -103,12 +96,6 @@ export default class UISystem extends System {
 				this.ui.setStateFieldValue('mapTime', time);
 			},
 			resetSettings: () => settingsSystem.resetSettings(),
-			setOverpassEndpoints: (endpoints: OverpassEndpoint[]) => {
-				this.ui.setStateFieldValue('overpassEndpoints', endpoints);
-			},
-			resetOverpassEndpoints: () => {
-				this.systemManager.getSystem(TileLoadingSystem).resetOverpassEndpoints();
-			},
 			getControlsStateHash: (): string => {
 				return this.systemManager.getSystem(ControlsSystem).getCurrentStateHash();
 			}
@@ -212,13 +199,6 @@ export default class UISystem extends System {
 		}
 	}
 
-	private updateOverpassEndpoints(): void {
-		const tileLoadingSystem = this.systemManager.getSystem(TileLoadingSystem);
-		if (tileLoadingSystem) {
-			this.ui.setStateFieldValue('overpassEndpoints', tileLoadingSystem.overpassEndpoints);
-		}
-	}
-
 	private updateMapTime(deltaTime: number): void {
 		const newMapTime = this.state.mapTime + deltaTime * 1000 * this.state.mapTimeMultiplier;
 		this.ui.setStateFieldValue('mapTime', newMapTime);
@@ -240,7 +220,6 @@ export default class UISystem extends System {
 	public update(deltaTime: number): void {
 		this.updateFPS(deltaTime);
 		this.updateMapTime(deltaTime);
-		this.updateOverpassEndpoints();
 		this.updateNorthDirection();
 	}
 }

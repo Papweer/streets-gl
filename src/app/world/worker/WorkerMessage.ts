@@ -7,7 +7,6 @@ export namespace WorkerMessage {
 	export interface ToWorker {
 		type: ToWorkerType;
 		tile: [number, number];
-		overpassEndpoint?: string;
 		tileServerEndpoint?: string;
 		vectorTilesEndpointTemplate?: string;
 		isTerrainHeightEnabled?: boolean;

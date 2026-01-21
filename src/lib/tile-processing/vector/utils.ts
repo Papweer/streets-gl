@@ -1,23 +1,8 @@
-import {Tags} from "~/lib/tile-processing/vector/providers/OverpassDataObject";
 import {VectorFeature} from "~/lib/tile-processing/vector/features/VectorFeature";
 import VectorFeatureCollection from "~/lib/tile-processing/vector/features/VectorFeatureCollection";
 import VectorTileHandler from "~/lib/tile-processing/vector/handlers/VectorTileHandler";
 import {VectorTile} from "~/lib/tile-processing/vector/providers/pbf/VectorTile";
 import OSMReference, {OSMReferenceType} from "~/lib/tile-processing/vector/features/OSMReference";
-
-export function assertTags(tags?: Tags): Tags {
-	return tags ?? {};
-}
-
-export function cleanupTags(tags?: Tags): Tags {
-	tags = assertTags(tags);
-
-	for (const [key, value] of Object.entries(tags)) {
-		tags[key] = value.trim();
-	}
-
-	return tags;
-}
 
 
 export function getCollectionFromVectorFeatures(features: VectorFeature[]): VectorFeatureCollection {
