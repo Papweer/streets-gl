@@ -52,6 +52,9 @@ export default class VectorPolylineHandler implements Handler {
 			case 'waterway': {
 				return [this.handleWaterway()];
 			}
+			case 'parkingSpace': {
+				return [this.handleParkingSpace()];
+			}
 		}
 
 		return [];
@@ -259,6 +262,21 @@ export default class VectorPolylineHandler implements Handler {
 		return builder.getGeometry();
 	}
 
+	private handleParkingSpace(): Tile3DProjectedGeometry {
+		const builder = new Tile3DProjectedGeometryBuilder();
+		builder.setZIndex(ZIndexMap.ParkingSpace);
+		builder.addRing(Tile3DRingType.Outer, this.vertices);
+
+		builder.addPath({
+			width: 0.1 * this.mercatorScale, // TODO
+			uvFollowRoad: false,
+			uvScale: 1,
+			textureId: ProjectedTextures.RoadMarking,
+		});
+
+		return builder.getGeometry();
+	}
+	
 	public getIntersectionMaterial(): VectorAreaDescriptor['intersectionMaterial'] {
 		if (this.descriptor.pathMaterial === 'concrete') {
 			return 'concrete';

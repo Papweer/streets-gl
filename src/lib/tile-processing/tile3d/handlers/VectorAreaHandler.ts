@@ -417,7 +417,7 @@ export default class VectorAreaHandler implements Handler {
 		const multipolygon = this.getMultipolygon();
 		const builder = new Tile3DExtrudedGeometryBuilder(this.osmReference, multipolygon);
 
-		const noDefaultRoof = builder.getAreaToOMBBRatio() < 0.75 || multipolygon.getArea() < 10;
+		const noDefaultRoof = (builder.getAreaToOMBBRatio() < 0.75 || multipolygon.getArea() < 10) || !Config.GenericRoof;
 		const roofParams = this.getRoofParams(noDefaultRoof);
 
 		const facadeMinHeight = this.descriptor.buildingFoundation ? this.terrainMaxHeight : this.terrainMinHeight;

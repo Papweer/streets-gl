@@ -369,8 +369,9 @@ export default class WallsBuilder {
 			vertexHeight -= minHeight;
 			nextVertexHeight -= minHeight;
 
-			const [uvXMin, uvXMax, hasWindow] = walls[i];
-
+			const [uvXMin, uvXMax, hasWindowTemp] = walls[i];
+			const hasWindow = Config.RenderWindows ? hasWindowTemp : false;
+			
 			let uvMax0 = Math.max(nextVertexHeight, vertexHeight) / (height - minHeight) * levels;
 			let uvMax1 = uvMax0;
 

@@ -33,6 +33,7 @@ export const ZIndexMap = {
 	Runway: 27,
 	Rail: 28,
 	Helipad: 29,
+	ParkingSpace: 30
 } as const satisfies Record<string, number>;
 
 export default interface Tile3DProjectedGeometry extends Tile3DFeature {

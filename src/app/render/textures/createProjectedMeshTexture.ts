@@ -161,6 +161,10 @@ export default function createProjectedMeshTexture(renderer: AbstractRenderer): 
 			ResourceLoader.get('pitchGenericDiffuse'),
 			ResourceLoader.get('pitchGenericNormal'),
 			ResourceLoader.get('commonMask'),
+
+			ResourceLoader.get('roadMarkingDiffuse'),
+			ResourceLoader.get('asphaltNormal'),
+			ResourceLoader.get('commonMask'),
 		],
 		minFilter: RendererTypes.MinFilter.LinearMipmapLinear,
 		magFilter: RendererTypes.MagFilter.Linear,

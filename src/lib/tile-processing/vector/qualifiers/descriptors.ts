@@ -13,10 +13,10 @@ export interface VectorNodeDescriptor {
 }
 
 export interface VectorPolylineDescriptor {
-	type: 'path' | 'fence' | 'wall' | 'powerLine' | 'waterway';
+	type: 'path' | 'fence' | 'wall' | 'powerLine' | 'waterway' | 'parkingSpace';
 	pathType?: 'roadway' | 'footway' | 'cycleway' | 'railway' | 'tramway' | 'runway';
 	wallType?: 'stone' | 'concrete' | 'hedge';
-	pathMaterial?: 'asphalt' | 'concrete' | 'dirt' | 'sand' | 'gravel' | 'cobblestone' | 'wood';
+	pathMaterial?: string;
 	isRoadwayMarked?: boolean;
 	fenceMaterial?: 'wood' | 'chainLink' | 'metal' | 'concrete';
 	width?: number;
@@ -24,7 +24,7 @@ export interface VectorPolylineDescriptor {
 	minHeight?: number;
 	lanesForward?: number;
 	lanesBackward?: number;
-	side?: 'both' | 'left' | 'right';
+	side?: string;
 }
 
 export interface VectorAreaDescriptor {
