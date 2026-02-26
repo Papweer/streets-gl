@@ -215,7 +215,7 @@ export default class VectorPolylineHandler implements Handler {
 		builder.addRing(Tile3DRingType.Outer, this.vertices);
 
 		const {width, textureId} = VectorPolylineHandler.getFenceParams(
-			this.descriptor.fenceMaterial,
+			this.descriptor.material,
 			this.descriptor.height
 		);
 
@@ -234,8 +234,8 @@ export default class VectorPolylineHandler implements Handler {
 		const builder = new Tile3DProjectedGeometryBuilder();
 		builder.addRing(Tile3DRingType.Outer, this.vertices);
 
-		const params = VectorPolylineHandler.getWallParams(this.descriptor.wallType);
-
+		const params = VectorPolylineHandler.getWallParams(this.descriptor.material);
+		
 		builder.addExtrudedPath({
 			width: 0.8 * this.mercatorScale,
 			height: this.descriptor.height * this.mercatorScale,
@@ -486,13 +486,13 @@ export default class VectorPolylineHandler implements Handler {
 	}
 
 	private static getFenceParams(
-		fenceType: VectorPolylineDescriptor['fenceMaterial'],
+		type: VectorPolylineDescriptor['material'],
 		height: number
 	): {
 		textureId: number;
 		width: number;
 	} {
-		const textureTable: Record<VectorPolylineDescriptor['fenceMaterial'], {
+		const textureTable: Record<VectorPolylineDescriptor['material'], {
 			textureId: number;
 			widthRatio: number;
 		}> = {
@@ -502,7 +502,7 @@ export default class VectorPolylineHandler implements Handler {
 			metal: {textureId: ProjectedTextures.MetalFence, widthRatio: 1.64}
 		};
 
-		const entry = textureTable[fenceType];
+		const entry = textureTable[type];
 
 		return {
 			textureId: entry.textureId,
@@ -511,13 +511,13 @@ export default class VectorPolylineHandler implements Handler {
 	}
 
 	private static getWallParams(
-		type: VectorPolylineDescriptor['wallType']
+		type: VectorPolylineDescriptor['material']
 	): {
 		textureId: number;
 		uvScaleX: number;
 		uvScaleY: number;
 	} {
-		const textureTable: Record<VectorPolylineDescriptor['wallType'], {
+		const textureTable: Record<VectorPolylineDescriptor['material'], {
 			textureId: number;
 			scaleX: number;
 			scaleY: number;
