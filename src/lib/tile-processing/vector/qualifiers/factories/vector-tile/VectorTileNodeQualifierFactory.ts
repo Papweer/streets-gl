@@ -3,22 +3,19 @@ import {VectorNodeDescriptor} from "~/lib/tile-processing/vector/qualifiers/desc
 import {Qualifier, QualifierType} from "~/lib/tile-processing/vector/qualifiers/Qualifier";
 import {VectorTile} from "~/lib/tile-processing/vector/providers/pbf/VectorTile";
 import {ModifierType} from "~/lib/tile-processing/vector/qualifiers/modifiers";
-import getTreeType from "~/lib/tile-processing/vector/qualifiers/factories/vector-tile/helpers/getTreeType";
 import getFeatureHeightAndMinHeight
 	from "~/lib/tile-processing/vector/qualifiers/factories/vector-tile/helpers/getHeightAndMinHeight";
 
 export default class VectorTileNodeQualifierFactory extends AbstractQualifierFactory<VectorNodeDescriptor, VectorTile.FeatureTags> {
 	public fromTags(tags: VectorTile.FeatureTags): Qualifier<VectorNodeDescriptor>[] {
 		if (tags.type === 'tree') {
-			const [height, minHeight] = getFeatureHeightAndMinHeight(tags);
-
 			return [{
 				type: QualifierType.Descriptor,
 				data: {
 					type: 'tree',
-					height: height,
-					minHeight: minHeight,
-					treeType: getTreeType(tags)
+					height: <number>tags.height,
+					minHeight: <number>tags.minHeight,
+					treeType: <string>tags.treeType
 				}
 			}];
 		}

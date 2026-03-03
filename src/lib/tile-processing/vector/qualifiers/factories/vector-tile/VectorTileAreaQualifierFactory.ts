@@ -6,7 +6,6 @@ import {OMBBResult} from "~/lib/tile-processing/tile3d/builders/Tile3DMultipolyg
 import Vec2 from "~/lib/math/Vec2";
 import getPitchType from "~/lib/tile-processing/vector/qualifiers/factories/vector-tile/helpers/getPitchType";
 import getBuildingParams from "~/lib/tile-processing/vector/qualifiers/factories/vector-tile/helpers/getBuildingParams";
-import getTreeType from "~/lib/tile-processing/vector/qualifiers/factories/vector-tile/helpers/getTreeType";
 import Vec3 from "~/lib/math/Vec3";
 
 export default class VectorTileAreaQualifierFactory extends AbstractQualifierFactory<VectorAreaDescriptor, VectorTile.FeatureTags> {
@@ -90,7 +89,7 @@ export default class VectorTileAreaQualifierFactory extends AbstractQualifierFac
 				type: QualifierType.Descriptor,
 				data: {
 					type: 'forest',
-					treeType: getTreeType(tags)
+					treeType: <string>tags.treeType
 				}
 			}];
 		}

@@ -1,7 +1,7 @@
 import {OMBBResult} from "~/lib/tile-processing/tile3d/builders/Tile3DMultipolygon";
 import Vec3 from "~/lib/math/Vec3";
 
-type TreeType = 'genericBroadleaved' | 'genericNeedleleaved' | 'beech' | 'fir' | 'linden' | 'oak';
+type TreeType = 'broadleaved' | 'needleleaved' | 'beech' | 'fir' | 'linden' | 'oak' | string;
 
 export interface VectorNodeDescriptor {
 	type?: 'tree' | 'rock' | 'hydrant' | 'transmissionTower' | 'utilityPole' | 'artwork' | 'adColumn' | 'windTurbine' |

@@ -73,20 +73,20 @@ export function getTreeTextureIdFromType(type: VectorNodeDescriptor['treeType'])
 		fir: [1],
 		linden: [2, 3],
 		oak: [4],
-		genericBroadleaved: [0, 2, 3, 4],
-		genericNeedleleaved: [1]
+		broadleaved: [0, 2, 3, 4],
+		needleleaved: [1]
 	};
 
-	return lookup[type] ?? lookup.genericBroadleaved;
+	return lookup[type] ?? lookup.broadleaved;
 }
 
 export function getTreeHeightRangeFromTextureId(textureId: number): [number, number] {
 	const lookup: Record<number, [number, number]> = {
-		0: [14, 18],
-		1: [25, 35],
-		2: [14, 18],
-		3: [14, 18],
-		4: [12, 15]
+		0: [10, 12],
+		1: [20, 25],
+		2: [10, 12],
+		3: [10, 12],
+		4: [8, 12]
 	};
 
 	return lookup[textureId];

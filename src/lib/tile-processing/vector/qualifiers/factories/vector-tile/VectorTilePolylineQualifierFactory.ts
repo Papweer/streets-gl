@@ -3,10 +3,6 @@ import {VectorPolylineDescriptor} from "~/lib/tile-processing/vector/qualifiers/
 import {Qualifier, QualifierType} from "~/lib/tile-processing/vector/qualifiers/Qualifier";
 import {VectorTile} from "~/lib/tile-processing/vector/providers/pbf/VectorTile";
 import {ModifierType} from "~/lib/tile-processing/vector/qualifiers/modifiers";
-import getTreeType from "~/lib/tile-processing/vector/qualifiers/factories/vector-tile/helpers/getTreeType";
-import getWaterwayParams from "~/lib/tile-processing/vector/qualifiers/factories/vector-tile/helpers/getWaterwayParams";
-import getFeatureHeightAndMinHeight
-	from "~/lib/tile-processing/vector/qualifiers/factories/vector-tile/helpers/getHeightAndMinHeight";
 
 export default class VectorTilePolylineQualifierFactory extends AbstractQualifierFactory<VectorPolylineDescriptor, VectorTile.FeatureTags> {
 	public fromTags(tags: VectorTile.FeatureTags): Qualifier<VectorPolylineDescriptor>[] {
@@ -135,8 +131,6 @@ export default class VectorTilePolylineQualifierFactory extends AbstractQualifie
 		}
 
 		if (tags.type === 'treeRow') {
-			const [height, minHeight] = getFeatureHeightAndMinHeight(tags);
-
 			return [{
 				type: QualifierType.Modifier,
 				data: {
@@ -145,26 +139,20 @@ export default class VectorTilePolylineQualifierFactory extends AbstractQualifie
 					randomness: 1,
 					descriptor: {
 						type: 'tree',
-						height: height,
-						minHeight: minHeight,
-						treeType: getTreeType(tags)
+						height: <number>tags.height,
+						minHeight: <number>tags.minHeight,
+						treeType: <string>tags.treeType
 					}
 				}
 			}];
 		}
 
 		if (tags.type === 'waterway') {
-			const params = getWaterwayParams(tags);
-
-			if (!params) {
-				return null;
-			}
-
 			return [{
 				type: QualifierType.Descriptor,
 				data: {
 					type: 'waterway',
-					width: params.width,
+					width: <number>tags.width,
 				}
 			}];
 		}
