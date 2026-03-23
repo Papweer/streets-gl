@@ -57,20 +57,12 @@ export default class VectorTileAreaQualifierFactory extends AbstractQualifierFac
 			}];
 		}
 
-		if (tags.type === 'path') {
-			if (tags.pathType === 'pedestrian' || tags.pathType === 'footway') {
-				return [{
-					type: QualifierType.Descriptor,
-					data: {
-						type: 'pavement'
-					}
-				}];
-			}
-
+		if (tags.type === 'pathArea') {
 			return [{
 				type: QualifierType.Descriptor,
 				data: {
-					type: 'asphalt'
+					type: 'pathArea',
+					pathMaterial: <string>tags.material,
 				}
 			}];
 		}

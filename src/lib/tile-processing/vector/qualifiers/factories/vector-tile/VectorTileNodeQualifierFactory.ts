@@ -127,7 +127,7 @@ export default class VectorTileNodeQualifierFactory extends AbstractQualifierFac
 					radius: 10,
 					descriptor: {
 						type: 'roadwayIntersection',
-						intersectionMaterial: 'asphalt'
+						pathMaterial: 'asphalt'
 					}
 				}
 			}];

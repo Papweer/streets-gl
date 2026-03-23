@@ -34,7 +34,7 @@ export default function getRoofParams(tags: VectorTile.FeatureTags): {
 				break;
 			}
 			case 'tiles': {
-				color = materialTagValue === 'slate' ? 0x8C8C97 : 0xCB7D64;
+				color = materialTagValue === 'slate' ? 0x616268 : 0xCB7D64;
 				break;
 			}
 			default: {

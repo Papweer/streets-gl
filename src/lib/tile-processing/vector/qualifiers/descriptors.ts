@@ -15,7 +15,7 @@ export interface VectorNodeDescriptor {
 export interface VectorPolylineDescriptor {
 	type: 'path' | 'fence' | 'wall' | 'powerLine' | 'waterway' | 'parkingSpace' | string;
 	pathType?: 'roadway' | 'footway' | 'cycleway' | 'railway' | 'tramway' | 'runway' | string;
-	pathMaterial?: string;
+	pathMaterial?: 'asphalt' | 'concrete' | 'dirt' | 'sand' | 'gravel' | 'cobblestone' | 'wood' | string;
 	isRoadwayMarked?: boolean;
 	material?: 'wood' | 'chainLink' | 'metal' | 'concrete' | 'stone' | 'concrete' | 'hedge' | string;
 	width?: number;
@@ -30,8 +30,8 @@ export interface VectorAreaDescriptor {
 	label?: string;
 	type: 'building' | 'buildingPart' | 'asphalt' | 'roadwayIntersection' | 'pavement' | 'water' | 'farmland' |
 		'grass' | 'sand' | 'rock' | 'pitch' | 'manicuredGrass' | 'helipad' | 'forest' | 'garden' | 'construction' |
-		'buildingConstruction' | 'shrubbery' | 'roadwayArea';
-	intersectionMaterial?: 'asphalt' | 'concrete' | 'cobblestone';
+		'buildingConstruction' | 'shrubbery' | 'pathArea';
+	pathMaterial?: 'asphalt' | 'concrete' | 'dirt' | 'sand' | 'gravel' | 'cobblestone' | 'wood' | string;
 	pitchType?: 'generic' | 'football' | 'basketball' | 'tennis';
 	treeType?: TreeType;
 	buildingLevels?: number;

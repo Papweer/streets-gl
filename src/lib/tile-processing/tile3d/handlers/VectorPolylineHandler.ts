@@ -277,7 +277,7 @@ export default class VectorPolylineHandler implements Handler {
 		return builder.getGeometry();
 	}
 	
-	public getIntersectionMaterial(): VectorAreaDescriptor['intersectionMaterial'] {
+	public getIntersectionMaterial(): VectorAreaDescriptor['pathMaterial'] {
 		if (this.descriptor.pathMaterial === 'concrete') {
 			return 'concrete';
 		}

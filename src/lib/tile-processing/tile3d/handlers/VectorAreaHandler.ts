@@ -328,26 +328,13 @@ export default class VectorAreaHandler implements Handler {
 					uvScale: 50
 				});
 			}
-			case 'asphalt': {
-				return this.handleGenericSurface({
-					textureId: ProjectedTextures.Asphalt,
-					isOriented: false,
-					zIndex: ZIndexMap.AsphaltArea,
-					uvScale: 20,
-					addUsageMask: true,
-				});
-			}
-			case 'roadwayArea': {
-				return this.handleGenericSurface({
-					textureId: ProjectedTextures.Asphalt,
-					isOriented: false,
-					zIndex: ZIndexMap.RoadwayArea,
-					uvScale: 20,
-					addUsageMask: true,
-				});
+			case 'pathArea': {
+				// TODO - This only supports asphalt, concreate and cobblestone. The support for all 
+				// TODO - materials needs to be taken from VectorPolylineHandler
+				return this.handleRoadArea();
 			}
 			case 'roadwayIntersection': {
-				return this.handleRoadIntersection();
+				return this.handleRoadArea();
 			}
 			case 'pavement': {
 				return this.handleGenericSurface({
@@ -392,9 +379,9 @@ export default class VectorAreaHandler implements Handler {
 		return [];
 	}
 
-	private handleRoadIntersection(): Tile3DFeature[] {
+	private handleRoadArea(): Tile3DFeature[] {
 		const params: Record<
-			VectorAreaDescriptor['intersectionMaterial'],
+			VectorAreaDescriptor['pathMaterial'],
 			{textureId: number; scale: number}
 		> = {
 			asphalt: {textureId: ProjectedTextures.Asphalt, scale: 20},
@@ -402,7 +389,7 @@ export default class VectorAreaHandler implements Handler {
 			cobblestone: {textureId: ProjectedTextures.Cobblestone, scale: 6},
 		};
 
-		const {textureId, scale} = params[this.descriptor.intersectionMaterial] ?? params.asphalt;
+		const {textureId, scale} = params[this.descriptor.pathMaterial] ?? params.asphalt;
 
 		return this.handleGenericSurface({
 			textureId: textureId,
@@ -557,7 +544,6 @@ export default class VectorAreaHandler implements Handler {
 			textureId: textureId
 		};
 	}
-
 
 	private createShrub(x: number, y: number, z: number): Tile3DInstance {
 		const seed = Math.floor(x) + Math.floor(z);

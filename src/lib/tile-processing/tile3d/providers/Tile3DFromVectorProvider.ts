@@ -180,7 +180,7 @@ export default class Tile3DFromVectorProvider implements FeatureProvider<Tile3DF
 
 	private static addRoadGraphToHandlers(handlers: Handler[]): void {
 		const graph = new RoadGraph();
-		const roadIntersectionMaterials = new Map<Road, VectorAreaDescriptor['intersectionMaterial']>();
+		const roadIntersectionMaterials = new Map<Road, VectorAreaDescriptor['pathMaterial']>();
 
 		for (const handler of handlers) {
 			handler.setRoadGraph(graph);
@@ -201,12 +201,12 @@ export default class Tile3DFromVectorProvider implements FeatureProvider<Tile3DF
 	private static addIntersectionPolygonsToHandlers(
 		graph: RoadGraph,
 		handlers: Handler[],
-		intersectionMaterials: Map<Road, VectorAreaDescriptor['intersectionMaterial']>
+		pathMaterials: Map<Road, VectorAreaDescriptor['pathMaterial']>
 	): void {
 		const intersectionPolygons = graph.buildIntersectionPolygons(0);
 
 		for (const {intersection, polygon} of intersectionPolygons) {
-			const material = this.getIntersectionMaterial(intersection, intersectionMaterials);
+			const material = this.getIntersectionMaterial(intersection, pathMaterials);
 
 			if (material === null) {
 				// Skip intersection if it has no material
@@ -221,7 +221,7 @@ export default class Tile3DFromVectorProvider implements FeatureProvider<Tile3DF
 				type: 'area',
 				descriptor: {
 					type: 'roadwayIntersection',
-					intersectionMaterial: material
+					pathMaterial: material
 				},
 				rings: [{
 					nodes: polygon.map(p => {
@@ -243,9 +243,9 @@ export default class Tile3DFromVectorProvider implements FeatureProvider<Tile3DF
 
 	private static getIntersectionMaterial(
 		intersection: Intersection,
-		materialsMap: Map<Road, VectorAreaDescriptor['intersectionMaterial']>
-	): VectorAreaDescriptor['intersectionMaterial'] | null {
-		const frequencyTable: Record<VectorAreaDescriptor['intersectionMaterial'], number> = {
+		materialsMap: Map<Road, VectorAreaDescriptor['pathMaterial']>
+	): VectorAreaDescriptor['pathMaterial'] | null {
+		const frequencyTable: Record<VectorAreaDescriptor['pathMaterial'], number> = {
 			asphalt: 0,
 			concrete: 0,
 			cobblestone: 0
@@ -271,7 +271,7 @@ export default class Tile3DFromVectorProvider implements FeatureProvider<Tile3DF
 			return null;
 		}
 
-		return sorted[0][0] as VectorAreaDescriptor['intersectionMaterial'];
+		return sorted[0][0] as VectorAreaDescriptor['pathMaterial'];
 	}
 
 	private static getCollectionFromHandlers(
