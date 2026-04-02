@@ -11,7 +11,7 @@ const Config = {
 	SlippyMapTransitionDuration: 400,
 	MinFreeCameraHeight: 10,
 	CameraZoomSmoothing: 0.4,
-	CameraZoomSpeed: 0.001, // Original: 0.0005
+	CameraZoomSpeed: 0.0015, // Original: 0.0005
 	CameraZoomTrackpadFactor: 4,
 	MinCameraPitch: 5,
 	MaxCameraPitch: 89.99,

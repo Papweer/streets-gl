@@ -62,7 +62,9 @@ export default class VectorTileAreaQualifierFactory extends AbstractQualifierFac
 				type: QualifierType.Descriptor,
 				data: {
 					type: 'pathArea',
+					pathType: <string>tags.pathCategory,
 					pathMaterial: <string>tags.material,
+					width: <number>tags.width
 				}
 			}];
 		}

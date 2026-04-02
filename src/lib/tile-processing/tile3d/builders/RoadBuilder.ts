@@ -6,12 +6,19 @@ export enum RoadSide {
 	Right
 }
 
+/**
+ * Generates geometry for a road mesh from a polyline of 2D vertices.
+ * Each vertex produces a set of control points.
+ * Segments are quads connecting the forward edge of one vertex to the backward edge of the next.
+ * Connections are triangular fills at corners between adjacent segments.
+ */
 export default class RoadBuilder {
 	public static build(
 		{
 			vertices,
 			vertexAdjacentToStart,
 			vertexAdjacentToEnd,
+			offset = 0,
 			width,
 			uvFollowRoad,
 			uvScale = 1,
@@ -21,9 +28,12 @@ export default class RoadBuilder {
 			uvMaxX = 1
 		}: {
 			vertices: Vec2[];
+			// Used to calculate the incoming tangent/angle if the road connects to an existing path
 			vertexAdjacentToStart?: Vec2;
 			vertexAdjacentToEnd?: Vec2;
+			offset?: number;
 			width: number;
+			// If true, UVs run along the road; if false, UVs are derived from world-space XZ positions.
 			uvFollowRoad: boolean;
 			uvScale?: number;
 			uvScaleY?: number;
@@ -38,8 +48,8 @@ export default class RoadBuilder {
 		if (isClosed) {
 			points.pop();
 		}
-
-		const controlPoints = this.getControlPoints(points, isClosed, width, vertexAdjacentToStart, vertexAdjacentToEnd);
+			
+		const controlPoints = this.getControlPoints(points, isClosed, offset, width, vertexAdjacentToStart, vertexAdjacentToEnd);
 		const border = this.getBorderVertices(controlPoints, isClosed);
 		const geometry = this.buildSegmentsFromControlPoints(
 			controlPoints,
@@ -60,6 +70,9 @@ export default class RoadBuilder {
 		};
 	}
 
+	/**
+	 * Builds a closed polyline tracing the outer border of the road (left edge forward, right edge backward).
+	 */
 	private static getBorderVertices(controlPoints: Vec2[][], isClosed: boolean): Vec2[] {
 		const segmentCount = controlPoints.length - (isClosed ? 0 : 1);
 		const border: Vec2[] = [];
@@ -69,6 +82,7 @@ export default class RoadBuilder {
 			const next = controlPoints[(i + 1) % controlPoints.length];
 
 			if (current[4]) {
+				// Inner corner point goes on the side it belongs to (left or right border)
 				const inverse = current[2].equals(current[0]);
 
 				if (inverse) {
@@ -78,6 +92,7 @@ export default class RoadBuilder {
 				}
 			}
 
+			// Forward: left edges; backward: right edges
 			border.push(current[0], next[2]);
 			border.unshift(next[3], current[1]);
 		}
@@ -87,6 +102,10 @@ export default class RoadBuilder {
 		return border;
 	}
 
+	/**
+	 * Emits the triangle(s) for a connection fan at the start side of a corner.
+	 * "Inverse" means the inner corner is on the left side (the turn bends right).
+	 */
 	private static buildConnectionAttributesStart(
 		controlPoint: Vec2[],
 		side: RoadSide,
@@ -118,6 +137,7 @@ export default class RoadBuilder {
 			return;
 		}
 
+		// When rendering only one side, split the connection triangle along the road center
 		const uvMidX = (uvMinX + uvMaxX) / 2;
 		const midEnd = Vec2.multiplyScalar(Vec2.add(controlPoint[0], controlPoint[1]), 0.5);
 		const midCenter = isInverse ?
@@ -172,6 +192,9 @@ export default class RoadBuilder {
 		}
 	}
 
+	/**
+	 * Emits the triangle(s) for a connection fan at the end side of a corner.
+	 */
 	private static buildConnectionAttributesEnd(
 		controlPoint: Vec2[],
 		side: RoadSide,
@@ -258,6 +281,10 @@ export default class RoadBuilder {
 		}
 	}
 
+	/**
+	 * Emits a connection (corner fan triangle) if the control point has an inner corner [4].
+	 * Returns the updated UV progress along the road.
+	 */
 	private static buildConnection(
 		controlPoint: Vec2[],
 		side: RoadSide,
@@ -310,6 +337,10 @@ export default class RoadBuilder {
 		return end;
 	}
 
+	/**
+	 * Emits a quad between two adjacent control points.
+	 * Returns the updated UV progress.
+	 */
 	private static buildSegment(
 		controlPointFrom: Vec2[],
 		controlPointTo: Vec2[],
@@ -321,10 +352,10 @@ export default class RoadBuilder {
 		position: number[],
 		uv: number[],
 	): number {
-		const a = controlPointFrom[0];
-		const b = controlPointFrom[1];
-		const c = controlPointTo[2];
-		const d = controlPointTo[3];
+		const a = controlPointFrom[0]; // left, forward edge of start
+		const b = controlPointFrom[1]; // right, forward edge of start
+		const c = controlPointTo[2];   // left, backward edge of end
+		const d = controlPointTo[3];   // right, backward edge of end
 
 		const segmentLength = Vec2.getLength(Vec2.sub(a, c));
 		const uvStart = uvProgress;
@@ -353,6 +384,7 @@ export default class RoadBuilder {
 				uvMinX, uvEnd / uvScaleY
 			);
 		} else {
+			// Only emit the left or right half of the quad, split along the centerline
 			const midStart = Vec2.multiplyScalar(Vec2.add(c, d), 0.5);
 			const midEnd = Vec2.multiplyScalar(Vec2.add(a, b), 0.5);
 			const uvMidX = (uvMinX + uvMaxX) / 2;
@@ -407,6 +439,10 @@ export default class RoadBuilder {
 		return uvEnd;
 	}
 
+	/**
+	 * Iterates over all segments, emitting connection–segment–connection triples
+	 * and accumulating UV progress along the road length.
+	 */
 	private static buildSegmentsFromControlPoints(
 		controlPoints: Vec2[][],
 		isClosed: boolean,
@@ -465,6 +501,7 @@ export default class RoadBuilder {
 		return {position, uv};
 	}
 
+	/** Overwrites UVs with world-space XZ coordinates divided by scale. */
 	private static fillUVsFromPositions(uv: number[], position: number[], scale: number): void {
 		for (let i = 0, j = 0; i < uv.length; i += 2, j += 3) {
 			const px = position[j];
@@ -475,9 +512,15 @@ export default class RoadBuilder {
 		}
 	}
 
+	/**
+	 * Calculates shifted points for each vertex to give the road width.
+	 * Handles generating miter joints at sharp corners.
+	 * Each vertex returns 5 points (4 when vextex is an endpoint): [startLeft, startRight, endLeft, endRight, innerCornerPivot]
+	 */
 	private static getControlPoints(
 		vertices: Vec2[],
 		isClosed: boolean,
+		offset: number,
 		width: number,
 		vertexAdjacentToStart?: Vec2,
 		vertexAdjacentToEnd?: Vec2
@@ -514,6 +557,7 @@ export default class RoadBuilder {
 				vB = Vec2.sub(next, current);
 			}
 
+			// Fall back to duplicating the available direction when at an endpoint
 			if (!vA) vA = Vec2.clone(vB);
 			if (!vB) vB = Vec2.clone(vA);
 
@@ -522,25 +566,37 @@ export default class RoadBuilder {
 
 			const leftA = Vec2.rotateLeft(aNorm);
 			const leftB = Vec2.rotateLeft(bNorm);
-			const alpha = Math.atan2(bNorm.y, bNorm.x) - Math.atan2(aNorm.y, aNorm.x);
+			
+			const alpha = Math.atan2(bNorm.y, bNorm.x) - Math.atan2(aNorm.y, aNorm.x); // Angle between a and b
 			const alphaFixed = alpha < 0 ? alpha + Math.PI * 2 : alpha;
-			const offsetDir = Vec2.normalize(Vec2.add(leftA, leftB));
-			const offsetLength = width / (2 * Math.cos(alpha / 2));
-			const offsetLengthAbs = (!prev && !next) ? width / 2 : Math.min(Math.abs(offsetLength), width * 5);
+			const offsetDirection = Vec2.normalize(Vec2.add(leftA, leftB));
 
+			const nominalLeft = offset + width / 2;
+			const nominalRight = offset - width / 2;
+
+			// On sharp corners edge may extend very far out. This clamps it to a max.
+			const miterFactor = Math.min(1 / Math.abs(Math.cos(alpha / 2)), 10);
+					
+			const offsetLenLeftAbs = (!prev && !next) ? nominalLeft : nominalLeft * miterFactor;
+			const offsetLenRightAbs = (!prev && !next) ? nominalRight : nominalRight * miterFactor;
+
+			// When the turn angle >= 180°, the inner corner flips to the other side (inverse true means turn left)
 			const inverse = alphaFixed >= Math.PI;
 
-			const pointLeft = Vec2.add(current, Vec2.multiplyScalar(offsetDir, offsetLengthAbs));
-			const pointRight = Vec2.add(current, Vec2.multiplyScalar(offsetDir, -offsetLengthAbs));
+			const pointLeft = Vec2.add(current, Vec2.multiplyScalar(offsetDirection, offsetLenLeftAbs));
+			const pointRight = Vec2.add(current, Vec2.multiplyScalar(offsetDirection, offsetLenRightAbs));
+			
+			const offsetCentre = Vec2.add(current, Vec2.multiplyScalar(offsetDirection, (offsetLenLeftAbs + offsetLenRightAbs) / 2))
 
-			const mirroredA = this.reflectPoint(inverse ? pointRight : pointLeft, current, Vec2.add(current, aNorm));
-			const mirroredB = this.reflectPoint(inverse ? pointRight : pointLeft, current, Vec2.add(current, bNorm));
+			// Mirror the outer miter point across each edge direction to get clamped edge endpoints
+			const mirroredA = this.reflectPoint(inverse ? pointRight : pointLeft, offsetCentre, Vec2.add(offsetCentre, aNorm));
+			const mirroredB = this.reflectPoint(inverse ? pointRight : pointLeft, offsetCentre, Vec2.add(offsetCentre, bNorm));
 
-			const p0 = inverse ? mirroredB : pointLeft;
-			const p1 = inverse ? pointRight : mirroredB;
-			const p2 = inverse ? mirroredA : pointLeft;
-			const p3 = inverse ? pointRight : mirroredA;
-			const p4 = inverse ? pointLeft : pointRight;
+			const p0 = inverse ? mirroredB : pointLeft; //startLeft
+			const p1 = inverse ? pointRight : mirroredB; //startRight
+			const p2 = inverse ? mirroredA : pointLeft; //endLeft
+			const p3 = inverse ? pointRight : mirroredA; //endRight
+			const p4 = inverse ? pointLeft : pointRight; //innerCornerPivot
 
 			if (!prev || !next) {
 				controlPoints.push([p0, p1, p2, p3]);
@@ -560,7 +616,9 @@ export default class RoadBuilder {
 		return (lineEnd.x * lineStart.y - lineStart.x * lineEnd.y) / (lineEnd.x - lineStart.x)
 	}
 
+	/** Reflects a point across the line defined by lineStart -> lineEnd. */
 	private static reflectPoint(point: Vec2, lineStart: Vec2, lineEnd: Vec2): Vec2 {
+		// Handle vertical line to avoid division by zero
 		if (lineEnd.x - lineStart.x === 0) {
 			return new Vec2(2 * lineEnd.x - point.x, point.y);
 		}

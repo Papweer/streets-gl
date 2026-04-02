@@ -6,6 +6,10 @@ export enum SurfaceBuilderOrientation {
 	Across
 }
 
+/**
+ * Generates flat triangle geometry for a polygon surface with UV coordinates
+ * optionally aligned to the polygon's oriented minimum bounding box (OMBB).
+ */
 export default class SurfaceBuilder {
 	public static build(
 		{
@@ -16,7 +20,7 @@ export default class SurfaceBuilder {
 			uvScale
 		}: {
 			multipolygon: Tile3DMultipolygon;
-			isOriented: boolean;
+			isOriented: boolean; // If true UVs are rotated to align with the OMBB axes.
 			stretch: boolean;
 			orientation: SurfaceBuilderOrientation;
 			uvScale: number;
@@ -48,7 +52,8 @@ export default class SurfaceBuilder {
 				[rotVector0, rotVector1] = [rotVector1, rotVector0];
 				[rotVector0Length, rotVector1Length] = [rotVector1Length, rotVector0Length];
 			}
-
+			
+			// Rotate UVs so that the chosen OMBB axis aligns with the X-axis
 			const angle = -Vec2.angleClockwise(new Vec2(1, 0), rotVector0);
 			const scaleVec = new Vec2(1 / rotVector0Length, 1 / rotVector1Length);
 
@@ -60,6 +65,7 @@ export default class SurfaceBuilder {
 				const scaled = new Vec2(rotated.x, rotated.y);
 
 				if (stretch) {
+					// Normalize to [0..1] range within the OMBB
 					scaled.x *= scaleVec.x;
 					scaled.y *= scaleVec.y;
 				}

@@ -8,7 +8,7 @@ import Tile3DExtrudedGeometryBuilder, {
 import Vec2 from "~/lib/math/Vec2";
 import Tile3DRing, {Tile3DRingType} from "~/lib/tile-processing/tile3d/builders/Tile3DRing";
 import Tile3DProjectedGeometryBuilder from "~/lib/tile-processing/tile3d/builders/Tile3DProjectedGeometryBuilder";
-import Tile3DProjectedGeometry, {ZIndexMap} from "~/lib/tile-processing/tile3d/features/Tile3DProjectedGeometry";
+import Tile3DProjectedGeometry, {getZIndex} from "~/lib/tile-processing/tile3d/features/Tile3DProjectedGeometry";
 import Tile3DLabel from "~/lib/tile-processing/tile3d/features/Tile3DLabel";
 import Tile3DMultipolygon, {OMBBResult} from "~/lib/tile-processing/tile3d/builders/Tile3DMultipolygon";
 import Config from "~/app/Config";
@@ -26,6 +26,7 @@ import {ExtrudedTextures, ProjectedTextures} from "~/lib/tile-processing/tile3d/
 import VectorNode from "~/lib/tile-processing/vector/features/VectorNode";
 import * as Simplify from "simplify-js";
 import {SurfaceBuilderOrientation} from "~/lib/tile-processing/tile3d/builders/SurfaceBuilder";
+import getPathParams from "./helpers/getPathParams";
 
 const TileSize = 611.4962158203125;
 
@@ -226,7 +227,7 @@ export default class VectorAreaHandler implements Handler {
 				return this.handleGenericSurface({
 					textureId: ProjectedTextures.Water,
 					isOriented: false,
-					zIndex: ZIndexMap.Water
+					zIndex: getZIndex("Landcover", "Water")
 				});
 			}
 			case 'pitch': {
@@ -243,7 +244,7 @@ export default class VectorAreaHandler implements Handler {
 						textureId,
 						isOriented: false,
 						uvScale: 20,
-						zIndex: ZIndexMap.Pitch
+						zIndex: getZIndex("Landcover", "Pitch")
 					});
 				}
 
@@ -251,14 +252,14 @@ export default class VectorAreaHandler implements Handler {
 					textureId,
 					isOriented: true,
 					stretch: true,
-					zIndex: ZIndexMap.Pitch
+					zIndex: getZIndex("Landcover", "Pitch")
 				});
 			}
 			case 'manicuredGrass': {
 				return this.handleGenericSurface({
 					textureId: ProjectedTextures.ManicuredGrass,
 					isOriented: false,
-					zIndex: ZIndexMap.ManicuredGrass,
+					zIndex: getZIndex("Landcover", "ManicuredGrass"),
 					uvScale: 20,
 				});
 			}
@@ -266,7 +267,7 @@ export default class VectorAreaHandler implements Handler {
 				return this.handleGenericSurface({
 					textureId: ProjectedTextures.Garden,
 					isOriented: false,
-					zIndex: ZIndexMap.Garden,
+					zIndex: getZIndex("Landcover", "Garden"),
 					uvScale: 16,
 				});
 			}
@@ -274,7 +275,7 @@ export default class VectorAreaHandler implements Handler {
 				const features: Tile3DFeature[] = this.handleGenericSurface({
 					textureId: ProjectedTextures.Soil,
 					isOriented: false,
-					zIndex: ZIndexMap.Construction,
+					zIndex: getZIndex("Landcover", "Construction"),
 					uvScale: 25,
 				});
 
@@ -286,7 +287,7 @@ export default class VectorAreaHandler implements Handler {
 				return this.handleGenericSurface({
 					textureId: ProjectedTextures.Soil,
 					isOriented: false,
-					zIndex: ZIndexMap.Construction,
+					zIndex: getZIndex("Landcover", "Construction"),
 					uvScale: 25,
 				});
 			}
@@ -294,7 +295,7 @@ export default class VectorAreaHandler implements Handler {
 				return this.handleGenericSurface({
 					textureId: ProjectedTextures.Grass,
 					isOriented: false,
-					zIndex: ZIndexMap.Grass,
+					zIndex: getZIndex("Landcover", "Grass"),
 					uvScale: 25,
 				});
 			}
@@ -302,7 +303,7 @@ export default class VectorAreaHandler implements Handler {
 				return this.handleGenericSurface({
 					textureId: ProjectedTextures.Rock,
 					isOriented: false,
-					zIndex: ZIndexMap.Rock,
+					zIndex: getZIndex("Landcover", "Rock"),
 					uvScale: 32,
 				});
 			}
@@ -310,7 +311,7 @@ export default class VectorAreaHandler implements Handler {
 				return this.handleGenericSurface({
 					textureId: ProjectedTextures.Sand,
 					isOriented: false,
-					zIndex: ZIndexMap.Sand,
+					zIndex: getZIndex("Landcover", "Sand"),
 					uvScale: 12,
 				});
 			}
@@ -324,25 +325,16 @@ export default class VectorAreaHandler implements Handler {
 					isOriented: true,
 					stretch: false,
 					orientation: SurfaceBuilderOrientation.Across,
-					zIndex: ZIndexMap.Farmland,
+					zIndex: getZIndex("Landcover", "Farmland"),
 					uvScale: 50
 				});
 			}
 			case 'pathArea': {
-				// TODO - This only supports asphalt, concreate and cobblestone. The support for all 
-				// TODO - materials needs to be taken from VectorPolylineHandler
 				return this.handleRoadArea();
 			}
 			case 'roadwayIntersection': {
+				this.descriptor.pathType = "roadway";
 				return this.handleRoadArea();
-			}
-			case 'pavement': {
-				return this.handleGenericSurface({
-					textureId: ProjectedTextures.Pavement,
-					isOriented: false,
-					zIndex: ZIndexMap.FootwayArea,
-					uvScale: 10,
-				});
 			}
 			case 'helipad': {
 				return [
@@ -350,12 +342,12 @@ export default class VectorAreaHandler implements Handler {
 						textureId: ProjectedTextures.Helipad,
 						isOriented: true,
 						stretch: true,
-						zIndex: ZIndexMap.Helipad
+						zIndex: getZIndex("Road", "Helipad"),
 					}),
 					...this.handleGenericSurface({
-						textureId: ProjectedTextures.Pavement,
+						textureId: ProjectedTextures.Asphalt,
 						isOriented: false,
-						zIndex: ZIndexMap.FootwayArea,
+						zIndex: getZIndex("Road", "Asphalt"),
 						uvScale: 10,
 					})
 				];
@@ -369,7 +361,7 @@ export default class VectorAreaHandler implements Handler {
 					...this.handleGenericSurface({
 						textureId: ProjectedTextures.ForestFloor,
 						isOriented: false,
-						zIndex: ZIndexMap.ShrubberySoil,
+						zIndex: getZIndex("Landcover", "ShrubberySoil"),
 						uvScale: 15,
 					})
 				];
@@ -380,23 +372,19 @@ export default class VectorAreaHandler implements Handler {
 	}
 
 	private handleRoadArea(): Tile3DFeature[] {
-		const params: Record<
-			VectorAreaDescriptor['pathMaterial'],
-			{textureId: number; scale: number}
-		> = {
-			asphalt: {textureId: ProjectedTextures.Asphalt, scale: 20},
-			concrete: {textureId: ProjectedTextures.ConcreteIntersection, scale: 20},
-			cobblestone: {textureId: ProjectedTextures.Cobblestone, scale: 6},
-		};
-
-		const {textureId, scale} = params[this.descriptor.pathMaterial] ?? params.asphalt;
-
+		const params = getPathParams(
+			this.descriptor.pathType,
+			this.descriptor.pathMaterial,
+			this.descriptor.width,
+			this.mercatorScale
+		);
+		
 		return this.handleGenericSurface({
-			textureId: textureId,
+			textureId: params[0].textureId,
 			isOriented: false,
-			zIndex: ZIndexMap.AsphaltArea,
-			uvScale: scale,
-			addUsageMask: true
+			zIndex: (this.descriptor.type = "roadwayIntersection") ? params[0].zIndex + 100 : params[0].zIndex, // Changes z-index from road to intersection
+			uvScale: params[0].uvScale,
+			addUsageMask: (this.descriptor.pathType == "footway") ? false : true
 		});
 	}
 

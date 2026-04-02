@@ -26,10 +26,12 @@ export default class VectorTilePolylineQualifierFactory extends AbstractQualifie
 							type: 'path',
 							pathType: 'roadway',
 							pathMaterial: <string>tags.material,
+							lanes: <number>tags.lanes,
 							lanesForward: <number>tags.lanesForward,
 							lanesBackward: <number>tags.lanesBackward,
 							width: <number>tags.width,
-							isRoadwayMarked: <boolean>tags.markings
+							isRoadwayMarked: <boolean>tags.markings,
+							hasArea: <boolean>tags.hasArea
 						}
 					});
 
@@ -38,59 +40,62 @@ export default class VectorTilePolylineQualifierFactory extends AbstractQualifie
 					const cyclewayWidth = 2; // TODO: Move to planetiler
 					const sidewalkWidth = 2;
 
+					let offsetLeft = <number>tags.width/2 + sidewalkWidth / 2;
+					let offsetRight = -offsetLeft;
+
 					if (cyclewaySide) {
-						qualifiers.push({
-							type: QualifierType.Descriptor,
-							data: { // TODO: Make cycleway material non-hardcoded
-								type: 'path',
-								pathType: 'cycleway',
-								width: <number>tags.width + cyclewayWidth * 2,
-								side: cyclewaySide
-							}
-						});
+						// TODO: Make cycleway material non-hardcoded
+						if (cyclewaySide == "left" || cyclewaySide == "both") {
+							qualifiers.push({
+								type: QualifierType.Descriptor,
+									data: { 
+									type: 'path',
+									pathType: 'cycleway',
+									offset: offsetLeft,
+									width: cyclewayWidth,
+								}
+							});
+							offsetLeft += cyclewayWidth;
+						}
+						if (cyclewaySide == "right" || cyclewaySide == "both") {
+							qualifiers.push({
+								type: QualifierType.Descriptor,
+								data: {
+									type: 'path',
+									pathType: 'cycleway',
+									offset: offsetRight,
+									width: cyclewayWidth,
+								}
+							});
+							offsetRight -= cyclewayWidth
+						}
+						
 					}
 
 					if (sidewalkSide) {
-						if (!cyclewaySide || cyclewaySide === 'both') {
+						if (sidewalkSide === "left" || sidewalkSide === "both") {
 							qualifiers.push({
 								type: QualifierType.Descriptor,
 								data: {
 									type: 'path',
 									pathType: 'footway',
-									width: <number>tags.width + sidewalkWidth * 2 + (cyclewaySide === 'both' ? cyclewayWidth * 2 : 0),
-									side: sidewalkSide
+									pathMaterial: 'cobblestone',
+									offset: offsetLeft,
+									width: sidewalkWidth
 								}
 							});
-						} else {
-							if (sidewalkSide === 'left' || sidewalkSide === 'both') {
-								const multiplier = cyclewaySide === 'left' ? 1 : 0;
-								const width = <number>tags.width + sidewalkWidth * 2 + multiplier * cyclewayWidth * 2;
-
-								qualifiers.push({
-									type: QualifierType.Descriptor,
-									data: {
-										type: 'path',
-										pathType: 'footway',
-										width: width,
-										side: 'left'
-									}
-								});
-							}
-
-							if (sidewalkSide === 'right' || sidewalkSide === 'both') {
-								const multiplier = cyclewaySide === 'right' ? 1 : 0;
-								const width = <number>tags.width + sidewalkWidth * 2 + multiplier * cyclewayWidth * 2;
-
-								qualifiers.push({
-									type: QualifierType.Descriptor,
-									data: {
-										type: 'path',
-										pathType: 'footway',
-										width: width,
-										side: 'right'
-									}
-								});
-							}
+						}
+						if (sidewalkSide === "right" || sidewalkSide === "both") {
+							qualifiers.push({
+								type: QualifierType.Descriptor,
+								data: {
+									type: 'path',
+									pathType: 'footway',
+									pathMaterial: 'cobblestone',
+									offset: offsetRight,
+									width: sidewalkWidth
+								}
+							});
 						}
 					}
 
@@ -102,7 +107,8 @@ export default class VectorTilePolylineQualifierFactory extends AbstractQualifie
 						data: {
 							type: 'path',
 							pathType: 'footway',
-							width: <number>tags.width
+							width: <number>tags.width,
+							hasArea: <boolean>tags.hasArea
 						}
 					}];
 				}
@@ -112,7 +118,8 @@ export default class VectorTilePolylineQualifierFactory extends AbstractQualifie
 						data: {
 							type: 'path',
 							pathType: 'cycleway',
-							width: <number>tags.width
+							width: <number>tags.width,
+							hasArea: <boolean>tags.hasArea
 						}
 					}];
 				}

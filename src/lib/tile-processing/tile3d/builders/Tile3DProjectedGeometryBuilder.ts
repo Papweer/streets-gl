@@ -86,6 +86,7 @@ export default class Tile3DProjectedGeometryBuilder {
 		{
 			vertexAdjacentToStart = null,
 			vertexAdjacentToEnd = null,
+			offset,
 			width,
 			uvFollowRoad,
 			uvScale = 1,
@@ -94,10 +95,12 @@ export default class Tile3DProjectedGeometryBuilder {
 			uvMinX = 0,
 			uvMaxX = 1,
 			height = 0,
-			textureId
+			textureId,
+			addMask = true,
 		}: {
 			vertexAdjacentToStart?: Vec2;
 			vertexAdjacentToEnd?: Vec2;
+			offset?: number;
 			width: number;
 			uvFollowRoad: boolean;
 			uvScale?: number;
@@ -107,12 +110,14 @@ export default class Tile3DProjectedGeometryBuilder {
 			uvMaxX?: number;
 			height?: number;
 			textureId: number;
+			addMask?: boolean;
 		}
 	): void {
 		const road = RoadBuilder.build({
 			vertices: this.multipolygon.rings[0].nodes,
 			vertexAdjacentToStart,
 			vertexAdjacentToEnd,
+			offset,
 			width,
 			uvFollowRoad,
 			uvScale,
@@ -128,8 +133,9 @@ export default class Tile3DProjectedGeometryBuilder {
 			textureId,
 			height
 		});
-
-		this.addMaskGeometry(road.position);
+		if (addMask) {
+			this.addMaskGeometry(road.position);
+		}
 	}
 
 	public addFence(
@@ -183,7 +189,7 @@ export default class Tile3DProjectedGeometryBuilder {
 		}
 	): void {
 		const road = RoadBuilder.build({
-			vertices: this.multipolygon.rings[0].nodes,
+			vertices: this.multipolygon.rings[0].nodes,		
 			width: width,
 			uvFollowRoad: true,
 			uvScaleY: textureScaleY,

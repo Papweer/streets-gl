@@ -18,12 +18,15 @@ export interface VectorPolylineDescriptor {
 	pathMaterial?: 'asphalt' | 'concrete' | 'dirt' | 'sand' | 'gravel' | 'cobblestone' | 'wood' | string;
 	isRoadwayMarked?: boolean;
 	material?: 'wood' | 'chainLink' | 'metal' | 'concrete' | 'stone' | 'concrete' | 'hedge' | string;
+	offset?: number;
 	width?: number;
 	height?: number;
 	minHeight?: number;
+	lanes?: number;
 	lanesForward?: number;
 	lanesBackward?: number;
 	side?: string;
+	hasArea?: boolean;
 }
 
 export interface VectorAreaDescriptor {
@@ -31,6 +34,7 @@ export interface VectorAreaDescriptor {
 	type: 'building' | 'buildingPart' | 'asphalt' | 'roadwayIntersection' | 'pavement' | 'water' | 'farmland' |
 		'grass' | 'sand' | 'rock' | 'pitch' | 'manicuredGrass' | 'helipad' | 'forest' | 'garden' | 'construction' |
 		'buildingConstruction' | 'shrubbery' | 'pathArea';
+	pathType?: string;
 	pathMaterial?: 'asphalt' | 'concrete' | 'dirt' | 'sand' | 'gravel' | 'cobblestone' | 'wood' | string;
 	pitchType?: 'generic' | 'football' | 'basketball' | 'tennis';
 	treeType?: TreeType;
@@ -50,6 +54,7 @@ export interface VectorAreaDescriptor {
 	buildingRoofColor?: number;
 	buildingWindows?: boolean;
 	buildingFoundation?: boolean;
+	width?: number; // For path area texture scaling
 	ombb?: OMBBResult;
 	poi?: Vec3;
 }

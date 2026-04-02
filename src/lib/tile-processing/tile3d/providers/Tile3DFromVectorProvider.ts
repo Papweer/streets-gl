@@ -32,6 +32,13 @@ export interface Tile3DProviderParams {
 	heightPromise: (positions: Float64Array) => Promise<Float64Array>;
 }
 
+/**
+ * Acts as the primary pipeline for converting raw 2D vector tile data into fully processed 3D tile features.
+ * 
+ * It manages fetching vector features, translating their coordinates into world space, adapting them to 
+ * terrain height/Mercator scale, resolving complex topology (like road intersections), and finally outputting 
+ * categorised 3D geometries (extruded, projected, instanced, etc.) ready for rendering.
+ */
 export default class Tile3DFromVectorProvider implements FeatureProvider<Tile3DFeatureCollection> {
 	private readonly vectorProvider: CombinedVectorFeatureProvider;
 	private readonly params: Tile3DProviderParams;
@@ -52,18 +59,26 @@ export default class Tile3DFromVectorProvider implements FeatureProvider<Tile3DF
 			zoom: number;
 		}
 	): Promise<Tile3DFeatureCollection> {
+		// Fetch 2D vector data
 		const vectorTile = await this.vectorProvider.getCollection({x, y, zoom});
 
+		// Transform tile-local coordinates to global 3D world space
 		Tile3DFromVectorProvider.transformVectorFeaturesToWorldSpace(vectorTile, x, y, zoom);
 
+		// Wrap vector features into Handlers that handle generating 3d geometry
 		const handlers = Tile3DFromVectorProvider.createHandlersFromVectorFeatureCollection(vectorTile);
 
+		// Apply scale and elevation modifications to the handlers
 		Tile3DFromVectorProvider.updateFeaturesMercatorScale(handlers, x, y, zoom);
 		await Tile3DFromVectorProvider.updateFeaturesHeight(handlers, this.params.heightPromise);
+		
+		// Build topological features (e.g., connecting individual road polylines into an intersection graph)
 		Tile3DFromVectorProvider.addRoadGraphToHandlers(handlers);
 
+		// Group the resulting 3D features into a collection
 		const collection = Tile3DFromVectorProvider.getCollectionFromHandlers(x, y, zoom, handlers);
 
+		// Apply a final visual correction for map projection distortion on vertical features
 		applyMercatorFactorToExtrudedFeatures(collection.extruded, x, y, zoom);
 
 		return collection;
@@ -248,7 +263,11 @@ export default class Tile3DFromVectorProvider implements FeatureProvider<Tile3DF
 		const frequencyTable: Record<VectorAreaDescriptor['pathMaterial'], number> = {
 			asphalt: 0,
 			concrete: 0,
-			cobblestone: 0
+			cobblestone: 0,
+			wood: 0,
+			gravel: 0,
+			sand: 0,
+			dirt: 0
 		};
 		let total: number = 0;
 

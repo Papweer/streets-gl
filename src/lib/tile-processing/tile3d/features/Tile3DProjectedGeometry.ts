@@ -15,26 +15,57 @@ export const ZIndexMap = {
 	ShrubberySoil: 10,
 	Railway: 11,
 	RailwayOverlay: 12,
-	DirtRoadway: 13,
-	SandRoadway: 14,
-	RoadwayArea: 15,
-	Footway: 16,
-	WoodFootway: 17,
-	AsphaltFootway: 17,
-	FootwayArea: 18,
-	Cycleway: 19,
-	AsphaltRoadway: 20,
-	ConcreteRoadway: 21,
-	WoodRoadway: 22,
-	CobblestoneRoadway: 23,
-	AsphaltArea: 24,
-	ConcreteArea: 25,
-	CobblestoneArea: 26,
-	Runway: 27,
-	Rail: 28,
-	Helipad: 29,
-	ParkingSpace: 30
+	DirtRoad: 13,
+	SandRoad: 14,
+	WoodRoad: 17,
+	Cycleway: 20,
+	Asphalt: 21,
+	ConcreteRoad: 22,
+	CobblestoneRoad: 23,
+	RoadMarking: 24,
+	Intersection: 25,
+	Runway: 26,
+	Rail: 27,
+	Helipad: 28
 } as const satisfies Record<string, number>;
+
+const ZIndexTypeMap = {
+	Landcover: 0,
+	Footway: 1,
+	Road: 2,
+	Intersection: 3,
+	Railway: 4,
+} as const satisfies Record<string, number>;
+
+const ZIndexMaterialMap = {
+	Water: 0,
+	Grass: 1,
+	Dirt: 2,
+	Sand: 3,
+	Rock: 4,
+	Wood: 5,
+	Cobblestone: 6,
+	Asphalt: 7,
+	Concrete: 8,
+	Cycleway: 9,
+	RoadMarking: 10, 
+	Construction: 11,
+	Farmland: 12,
+	ManicuredGrass: 13,
+	Garden: 14,
+	Pitch: 15,
+	ShrubberySoil: 16,
+	Waterway: 17,
+	Runway: 18,
+	Railway: 19,
+	RailwayOverlay: 20,
+	Rail: 21,
+	Helipad: 22
+} as const satisfies Record<string, number>;
+
+export function getZIndex(type: keyof typeof ZIndexTypeMap, material: keyof typeof ZIndexMaterialMap): number {
+	return ZIndexTypeMap[type] * 100 + ZIndexMaterialMap[material];
+}
 
 export default interface Tile3DProjectedGeometry extends Tile3DFeature {
 	type: 'projected';

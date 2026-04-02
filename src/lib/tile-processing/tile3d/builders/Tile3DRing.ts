@@ -7,6 +7,10 @@ export enum Tile3DRingType {
 	Inner
 }
 
+/**
+ * A closed polygon ring (outer boundary or hole) defined by a sequence of 2D vertices.
+ * Lazily caches derived properties like AABB, area, and alternative vertex formats.
+ */
 export default class Tile3DRing {
 	public readonly type: Tile3DRingType;
 	public readonly nodes: Vec2[];
@@ -21,6 +25,7 @@ export default class Tile3DRing {
 		this.nodes = nodes;
 	}
 
+	/** Returns vertices as a flat array [x0, y0, x1, y1, ...]. */
 	public getFlattenVertices(): number[] {
 		if (!this.cachedFlattenVertices) {
 			const vertices: number[] = [];
@@ -35,6 +40,7 @@ export default class Tile3DRing {
 		return this.cachedFlattenVertices;
 	}
 
+	/** Returns vertices as GeoJSON-style coordinate pairs [[x0, y0], [x1, y1], ...]. */
 	public getGeoJSONVertices(): [number, number][] {
 		if (!this.cachedGeoJSONVertices) {
 			const vertices: [number, number][] = [];
@@ -63,6 +69,7 @@ export default class Tile3DRing {
 		return this.cachedAABB;
 	}
 
+	/** Returns the minimum distance from any ring vertex to the given point. */
 	public getDistanceToPoint(point: Vec2): number {
 		let minDistance = Infinity;
 
@@ -81,6 +88,7 @@ export default class Tile3DRing {
 		return MathUtils.isPointInsidePolygon(point, this.nodes);
 	}
 
+	/** Returns the signed area of the ring (positive for CCW winding, negative for CW). */
 	public getArea(): number {
 		if (!this.cachedArea) {
 			this.cachedArea = MathUtils.getPolygonAreaSigned(this.nodes);

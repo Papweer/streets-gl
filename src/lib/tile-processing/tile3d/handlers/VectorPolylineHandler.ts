@@ -2,18 +2,18 @@ import Handler, {RequestedHeightParams} from "~/lib/tile-processing/tile3d/handl
 import Tile3DFeature from "~/lib/tile-processing/tile3d/features/Tile3DFeature";
 import VectorPolyline from "~/lib/tile-processing/vector/features/VectorPolyline";
 import OSMReference from "~/lib/tile-processing/vector/features/OSMReference";
-import Tile3DProjectedGeometry, {ZIndexMap} from "~/lib/tile-processing/tile3d/features/Tile3DProjectedGeometry";
+import Tile3DProjectedGeometry, {getZIndex} from "~/lib/tile-processing/tile3d/features/Tile3DProjectedGeometry";
 import Vec2 from "~/lib/math/Vec2";
 import Tile3DProjectedGeometryBuilder from "~/lib/tile-processing/tile3d/builders/Tile3DProjectedGeometryBuilder";
 import {Tile3DRingType} from "~/lib/tile-processing/tile3d/builders/Tile3DRing";
 import Tile3DHuggingGeometry from "~/lib/tile-processing/tile3d/features/Tile3DHuggingGeometry";
 import {RoadSide} from "~/lib/tile-processing/tile3d/builders/RoadBuilder";
-import {getRoadUV} from "~/lib/tile-processing/tile3d/utils";
 import RoadGraph from "~/lib/road-graph/RoadGraph";
 import Road from "~/lib/road-graph/Road";
 import Intersection, {IntersectionDirection} from "~/lib/road-graph/Intersection";
 import {VectorAreaDescriptor, VectorPolylineDescriptor} from "~/lib/tile-processing/vector/qualifiers/descriptors";
 import {ProjectedTextures} from "~/lib/tile-processing/tile3d/textures";
+import getPathParams from "./helpers/getPathParams";
 
 export default class VectorPolylineHandler implements Handler {
 	private readonly osmReference: OSMReference;
@@ -97,15 +97,13 @@ export default class VectorPolylineHandler implements Handler {
 	private handlePath(): Tile3DFeature[] {
 		const features: Tile3DFeature[] = [];
 		const side = VectorPolylineHandler.getRoadSideFromDescriptor(this.descriptor.side);
-		const params = VectorPolylineHandler.getPathParams(
+		const params = getPathParams(
 			this.descriptor.pathType,
 			this.descriptor.pathMaterial,
-			this.descriptor.isRoadwayMarked,
-			this.descriptor.lanesForward,
-			this.descriptor.lanesBackward,
 			this.descriptor.width,
 			this.mercatorScale
 		);
+		const offset = (this.descriptor.offset == null) ? 0 : this.descriptor.offset;
 		const {vertices, vertexAdjacentToStart, vertexAdjacentToEnd} = this.getPathBuilderVertices();
 
 		if (vertices.length < 2) {
@@ -117,20 +115,44 @@ export default class VectorPolylineHandler implements Handler {
 			builder.setZIndex(path.zIndex);
 			builder.addRing(Tile3DRingType.Outer, vertices);
 
-			builder.addPath({
-				width: this.descriptor.width * this.mercatorScale * path.widthScale,
-				uvMinX: path.uvMinX,
-				uvMaxX: path.uvMaxX,
-				textureId: path.textureId,
-				uvFollowRoad: path.uvFollowRoad,
-				uvScale: path.uvScale,
-				uvScaleY: path.uvScaleY,
-				side,
-				vertexAdjacentToStart,
-				vertexAdjacentToEnd
-			});
+			if (!this.descriptor.hasArea) {
+				builder.addPath({
+					offset: offset * this.mercatorScale,
+					width: this.descriptor.width * this.mercatorScale * path.widthScale,
+					uvMinX: path.uvMinX,
+					uvMaxX: path.uvMaxX,
+					textureId: path.textureId,
+					uvFollowRoad: path.uvFollowRoad,
+					uvScale: path.uvScale,
+					uvScaleY: path.uvScaleY,
+					side,
+					vertexAdjacentToStart,
+					vertexAdjacentToEnd,
+					addMask: (this.descriptor.pathType == "footway" ? false : true)
+				});
+			}
+
+			const markingBuilder = new Tile3DProjectedGeometryBuilder();
+			markingBuilder.setZIndex(getZIndex("Road", "RoadMarking"))
+			markingBuilder.addRing(Tile3DRingType.Outer, vertices);
+
+			// Build lane markings
+			if (this.descriptor.isRoadwayMarked && (this.descriptor.pathType == "roadway")) {			
+				// TODO - Don't assume right-hand side drive
+				for (let i = 1; i<this.descriptor.lanes; i++) {
+					markingBuilder.addPath({
+						width: 0.1 * this.mercatorScale,
+						offset: ((this.descriptor.width/this.descriptor.lanes)*i - (this.descriptor.width/2)) * this.mercatorScale,
+						textureId: ProjectedTextures.RoadMarking,
+						uvFollowRoad: true,
+						vertexAdjacentToStart,
+						vertexAdjacentToEnd
+					});
+				}
+			}
 
 			features.push(builder.getGeometry());
+			features.push(markingBuilder.getGeometry());
 
 			if (path.needsUsageMask) {
 				features.push(builder.getTerrainMaskGeometry());
@@ -250,9 +272,8 @@ export default class VectorPolylineHandler implements Handler {
 
 	private handleWaterway(): Tile3DProjectedGeometry {
 		const builder = new Tile3DProjectedGeometryBuilder();
-		builder.setZIndex(ZIndexMap.Waterway);
+		builder.setZIndex(getZIndex("Landcover", "Waterway"));
 		builder.addRing(Tile3DRingType.Outer, this.vertices);
-
 		builder.addPath({
 			width: this.descriptor.width * this.mercatorScale,
 			uvFollowRoad: false,
@@ -264,7 +285,7 @@ export default class VectorPolylineHandler implements Handler {
 
 	private handleParkingSpace(): Tile3DProjectedGeometry {
 		const builder = new Tile3DProjectedGeometryBuilder();
-		builder.setZIndex(ZIndexMap.ParkingSpace);
+		builder.setZIndex(getZIndex("Road", "RoadMarking"));
 		builder.addRing(Tile3DRingType.Outer, this.vertices);
 
 		builder.addPath({
@@ -278,199 +299,7 @@ export default class VectorPolylineHandler implements Handler {
 	}
 	
 	public getIntersectionMaterial(): VectorAreaDescriptor['pathMaterial'] {
-		if (this.descriptor.pathMaterial === 'concrete') {
-			return 'concrete';
-		}
-
-		if (this.descriptor.pathMaterial === 'asphalt') {
-			return 'asphalt';
-		}
-
-		if (this.descriptor.pathMaterial === 'cobblestone') {
-			return 'cobblestone';
-		}
-
-		return null;
-	}
-
-	private static getPathParams(
-		pathType: VectorPolylineDescriptor['pathType'],
-		pathMaterial: VectorPolylineDescriptor['pathMaterial'],
-		isRoadwayMarked: boolean,
-		lanesForward: number,
-		lanesBackward: number,
-		width: number,
-		mercatorScale: number
-	): {
-		textureId: number;
-		widthScale: number;
-		uvScale: number;
-		uvScaleY: number;
-		uvMinX: number;
-		uvMaxX: number;
-		uvFollowRoad: boolean;
-		zIndex: number;
-		needsUsageMask: boolean;
-	}[] {
-		const params = [{
-			textureId: 0,
-			widthScale: 1,
-			uvScale: 1,
-			uvScaleY: 1,
-			uvMinX: 0,
-			uvMaxX: 1,
-			zIndex: 0,
-			uvFollowRoad: false,
-			needsUsageMask: false
-		}];
-
-		switch (pathType) {
-			case 'footway': {
-				switch (pathMaterial) {
-					case 'wood': {
-						params[0].textureId = ProjectedTextures.WoodRoad;
-						params[0].zIndex = ZIndexMap.WoodFootway;
-						params[0].uvFollowRoad = true;
-						params[0].uvScaleY = 4;
-						params[0].uvMaxX = width / 4;
-						break;
-					}
-					case 'asphalt': {
-						params[0].textureId = ProjectedTextures.Asphalt;
-						params[0].zIndex = ZIndexMap.AsphaltFootway;
-						params[0].uvScale = 20;
-						break;
-					}
-					default: {
-						params[0].textureId = ProjectedTextures.Pavement;
-						params[0].zIndex = ZIndexMap.Footway;
-						params[0].uvScale = 10;
-					}
-				}
-				break;
-			}
-			case 'roadway': {
-				const uvXParams = getRoadUV(lanesForward, lanesBackward);
-				params[0].uvMinX = uvXParams.minX;
-				params[0].uvMaxX = uvXParams.maxX;
-				params[0].uvFollowRoad = true;
-
-				switch (pathMaterial) {
-					case 'asphalt': {
-						params[0].textureId = isRoadwayMarked ? ProjectedTextures.AsphaltRoad : ProjectedTextures.AsphaltUnmarkedRoad;
-						params[0].zIndex = ZIndexMap.AsphaltRoadway;
-						params[0].uvScaleY = 12;
-						params[0].needsUsageMask = true;
-						break;
-					}
-					case 'concrete': {
-						params[0].textureId = isRoadwayMarked ? ProjectedTextures.ConcreteRoad : ProjectedTextures.ConcreteUnmarkedRoad;
-						params[0].zIndex = ZIndexMap.ConcreteRoadway;
-						params[0].uvScaleY = 12;
-						params[0].needsUsageMask = true;
-						break;
-					}
-					case 'wood': {
-						params[0].textureId = ProjectedTextures.WoodRoad;
-						params[0].zIndex = ZIndexMap.WoodRoadway;
-						params[0].uvScaleY = 4;
-						params[0].uvMinX = 0;
-						params[0].uvMaxX = width * mercatorScale / 4;
-						params[0].needsUsageMask = true;
-						break;
-					}
-					case 'cobblestone': {
-						params[0].textureId = ProjectedTextures.Cobblestone;
-						params[0].zIndex = ZIndexMap.CobblestoneRoadway;
-						params[0].uvMinX = 0;
-						params[0].uvMaxX = width * mercatorScale / 6;
-						params[0].uvScaleY = 6;
-						params[0].needsUsageMask = true;
-						break;
-					}
-					case 'dirt': {
-						params[0].uvFollowRoad = true;
-						params[0].textureId = ProjectedTextures.DirtRoad;
-						params[0].zIndex = ZIndexMap.DirtRoadway;
-						params[0].widthScale = 1.7;
-						params[0].uvMinX = 0;
-						params[0].uvMaxX = 1;
-						params[0].uvScaleY = width * mercatorScale;
-						break;
-					}
-					case 'sand': {
-						params[0].uvFollowRoad = true;
-						params[0].textureId = ProjectedTextures.SandRoad;
-						params[0].zIndex = ZIndexMap.SandRoadway;
-						params[0].widthScale = 1.7;
-						params[0].uvMinX = 0;
-						params[0].uvMaxX = 1;
-						params[0].uvScaleY = width * mercatorScale;
-						break;
-					}
-				}
-				break;
-			}
-			case 'cycleway': {
-				params[0].textureId = ProjectedTextures.Cycleway;
-				params[0].zIndex = ZIndexMap.Cycleway;
-				params[0].uvFollowRoad = false;
-				params[0].uvScale = 8;
-				break;
-			}
-			case 'tramway': {
-				params[0].textureId = ProjectedTextures.Rail;
-				params[0].zIndex = ZIndexMap.Rail;
-				params[0].widthScale = 2;
-				params[0].uvFollowRoad = true;
-				params[0].uvMinX = 0;
-				params[0].uvMaxX = 1;
-				params[0].uvScaleY = width * mercatorScale * 4;
-				break;
-			}
-			case 'railway': {
-				params[0].textureId = ProjectedTextures.Railway;
-				params[0].zIndex = ZIndexMap.Railway;
-				params[0].widthScale = 2;
-				params[0].uvFollowRoad = true;
-				params[0].uvMinX = 0;
-				params[0].uvMaxX = 1;
-				params[0].uvScaleY = width * mercatorScale * 4;
-
-				params.push({
-					textureId: ProjectedTextures.RailwayTop,
-					zIndex: ZIndexMap.RailwayOverlay,
-					widthScale: 2,
-					uvFollowRoad: true,
-					uvMinX: 0,
-					uvMaxX: 1,
-					uvScaleY: width * mercatorScale * 4,
-					uvScale: 1,
-					needsUsageMask: false
-				});
-				params.push({
-					textureId: ProjectedTextures.Rail,
-					zIndex: ZIndexMap.Rail,
-					widthScale: 2,
-					uvFollowRoad: true,
-					uvMinX: 0,
-					uvMaxX: 1,
-					uvScaleY: width * mercatorScale * 4,
-					uvScale: 1,
-					needsUsageMask: false
-				});
-				break;
-			}
-			case 'runway': {
-				params[0].uvFollowRoad = false;
-				params[0].textureId = ProjectedTextures.Asphalt;
-				params[0].zIndex = ZIndexMap.Runway;
-				params[0].uvScale = 10;
-				break;
-			}
-		}
-
-		return params;
+		return this.descriptor.pathMaterial;
 	}
 
 	private static getRoadSideFromDescriptor(descriptorValue: VectorPolylineDescriptor['side']): RoadSide {

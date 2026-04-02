@@ -7,13 +7,9 @@ export default function createProjectedMeshTexture(renderer: AbstractRenderer): 
 	return renderer.createTexture2DArray({
 		width: 512,
 		height: 512,
-		depth: 39 * 3,
+		depth: 35 * 3,
 		anisotropy: 16,
 		data: [
-			ResourceLoader.get('pavementDiffuse'),
-			ResourceLoader.get('commonNormal'),
-			ResourceLoader.get('commonMask'),
-
 			ResourceLoader.get('asphaltDiffuse'),
 			ResourceLoader.get('asphaltNormal'),
 			ResourceLoader.get('commonMask'),
@@ -66,23 +62,11 @@ export default function createProjectedMeshTexture(renderer: AbstractRenderer): 
 			ResourceLoader.get('concreteFenceNormal'),
 			ResourceLoader.get('concreteFenceMask'),
 
-			ResourceLoader.get('asphaltRoadDiffuse'),
-			ResourceLoader.get('asphaltNormal'),
-			ResourceLoader.get('commonMask'),
-
-			ResourceLoader.get('asphaltUnmarkedRoadDiffuse'),
-			ResourceLoader.get('asphaltNormal'),
-			ResourceLoader.get('commonMask'),
-
 			ResourceLoader.get('concreteRoadDiffuse'),
 			ResourceLoader.get('asphaltNormal'),
 			ResourceLoader.get('commonMask'),
 
-			ResourceLoader.get('concreteUnmarkedRoadDiffuse'),
-			ResourceLoader.get('asphaltNormal'),
-			ResourceLoader.get('commonMask'),
-
-			ResourceLoader.get('concreteIntersectionDiffuse'),
+			ResourceLoader.get('concreteDiffuse'),
 			ResourceLoader.get('commonNormal'),
 			ResourceLoader.get('commonMask'),
 
