@@ -1,34 +1,6 @@
 import Tile3DFeature from "~/lib/tile-processing/tile3d/features/Tile3DFeature";
 import AABB3D from "~/lib/math/AABB3D";
 
-export const ZIndexMap = {
-	Water: 0,
-	Grass: 1,
-	Sand: 2,
-	Rock: 3,
-	ManicuredGrass: 4,
-	Garden: 5,
-	Construction: 6,
-	Farmland: 7,
-	Waterway: 8,
-	Pitch: 9,
-	ShrubberySoil: 10,
-	Railway: 11,
-	RailwayOverlay: 12,
-	DirtRoad: 13,
-	SandRoad: 14,
-	WoodRoad: 17,
-	Cycleway: 20,
-	Asphalt: 21,
-	ConcreteRoad: 22,
-	CobblestoneRoad: 23,
-	RoadMarking: 24,
-	Intersection: 25,
-	Runway: 26,
-	Rail: 27,
-	Helipad: 28
-} as const satisfies Record<string, number>;
-
 const ZIndexTypeMap = {
 	Landcover: 0,
 	Footway: 1,

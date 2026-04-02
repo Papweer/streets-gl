@@ -378,11 +378,11 @@ export default class VectorAreaHandler implements Handler {
 			this.descriptor.width,
 			this.mercatorScale
 		);
-		
+
 		return this.handleGenericSurface({
 			textureId: params[0].textureId,
 			isOriented: false,
-			zIndex: (this.descriptor.type = "roadwayIntersection") ? params[0].zIndex + 100 : params[0].zIndex, // Changes z-index from road to intersection
+			zIndex: (this.descriptor.type === "roadwayIntersection") ? params[0].zIndex + 100 : params[0].zIndex, // Changes z-index from road to intersection
 			uvScale: params[0].uvScale,
 			addUsageMask: (this.descriptor.pathType == "footway") ? false : true
 		});
